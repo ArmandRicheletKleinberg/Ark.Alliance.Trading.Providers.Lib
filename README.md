@@ -2,8 +2,9 @@
 
 <div align="center">
 
-[![Build Status](https://github.com/ArmandRicheletKleinberg/Ark.Alliance.Trading.Bot-React/actions/workflows/ci.yml/badge.svg)](https://github.com/ArmandRicheletKleinberg/Ark.Alliance.Trading.Bot-React/actions)
 [![npm version](https://badge.fury.io/js/ark-alliance-trading-providers-lib.svg)](https://www.npmjs.com/package/ark-alliance-trading-providers-lib)
+[![npm downloads](https://img.shields.io/npm/dm/ark-alliance-trading-providers-lib.svg)](https://www.npmjs.com/package/ark-alliance-trading-providers-lib)
+[![Build Status](https://github.com/ArmandRicheletKleinberg/Ark.Alliance.Trading.Providers.Lib/actions/workflows/ci.yml/badge.svg)](https://github.com/ArmandRicheletKleinberg/Ark.Alliance.Trading.Providers.Lib/actions)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](./src/Ark.Alliance.Trading.Providers.Lib.Test)
 [![Tests](https://img.shields.io/badge/tests-70%2B%20scenarios-brightgreen)](./src/Ark.Alliance.Trading.Providers.Lib.Test)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
@@ -12,11 +13,13 @@
 
 **Production-Ready Multi-Provider Cryptocurrency Trading SDK**
 
+> 📦 **[Available on npm](https://www.npmjs.com/package/ark-alliance-trading-providers-lib)** - Install with `npm install ark-alliance-trading-providers-lib`
+
 *Organization*: M2H.Io Ark.Alliance Ecosystem  
 *Version*: 1.0.0  
 *Last Updated*: 2025-12-30
 
-[Quick Start](#-quick-start) • [Documentation](#-project-references) • [Examples](#-use-cases) • [Contributing](./CONTRIBUTING.md)
+[Installation](#-quick-start) • [Documentation](#-project-references) • [Examples](#-use-cases) • [Contributing](./CONTRIBUTING.md)
 
 </div>
 

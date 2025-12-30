@@ -1,17 +1,20 @@
 # Ark Alliance Trading Providers Library
 
-[![Build Status](https://github.com/ArmandRicheletKleinberg/Ark.Alliance.Trading.Bot-React/actions/workflows/ci.yml/badge.svg)](https://github.com/ArmandRicheletKleinberg/Ark.Alliance.Trading.Bot-React/actions)
 [![npm version](https://badge.fury.io/js/ark-alliance-trading-providers-lib.svg)](https://www.npmjs.com/package/ark-alliance-trading-providers-lib)
+[![npm downloads](https://img.shields.io/npm/dm/ark-alliance-trading-providers-lib.svg)](https://www.npmjs.com/package/ark-alliance-trading-providers-lib)
+[![Build Status](https://github.com/ArmandRicheletKleinberg/Ark.Alliance.Trading.Providers.Lib/actions/workflows/ci.yml/badge.svg)](https://github.com/ArmandRicheletKleinberg/Ark.Alliance.Trading.Providers.Lib/actions)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](./coverage)
-[![Tests](https://img.shields.io/badge/tests-58%20passed-brightgreen)](./Ark.Alliance.Trading.Providers.Lib.Test)
+[![Tests](https://img.shields.io/badge/tests-70%2B%20scenarios-brightgreen)](../Ark.Alliance.Trading.Providers.Lib.Test)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-green)](https://nodejs.org/)
+
+> 📦 **Published on npm**: [ark-alliance-trading-providers-lib](https://www.npmjs.com/package/ark-alliance-trading-providers-lib)
 
 ---
 **Organization**: M2H.Io Ark.Alliance Ecosystem  
 **Version**: 1.0.0  
-**Last Updated**: 2025-12-29
+**Last Updated**: 2025-12-30
 
 ## What is this Library?
 
@@ -42,9 +45,15 @@
 
 ## Installation
 
+**NPM Package**: [ark-alliance-trading-providers-lib](https://www.npmjs.com/package/ark-alliance-trading-providers-lib)
+
 ```bash
 npm install ark-alliance-trading-providers-lib
 ```
+
+**Requirements**:
+- Node.js >= 18.0.0
+- TypeScript >= 5.3.0 (for development)
 
 ### TypeScript Configuration
 
