@@ -53,3 +53,6 @@ Thumbs.db
 # pnpm-lock.yaml
 /.vs/Ark.Alliance.Trading.Providers.Lib.slnx/FileContentIndex
 /.vs/Ark.Alliance.Trading.Providers.Lib.slnx/v18
+/.vs/Ark.Alliance.Trading.Providers.Lib/CopilotIndices/18.0.981.45449
+/.gitignore
+/.vs/slnx.sqlite
