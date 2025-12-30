@@ -1,0 +1,130 @@
+name: Provider Integration
+description: Track implementation of a new cryptocurrency exchange provider
+title: "[Provider] "
+labels: ["enhancement", "provider"]
+projects: ["Ark Alliance Trading Providers Roadmap"]
+assignees:
+  - ArmandRicheletKleinberg
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Provider Integration Checklist
+        Use this template to track the implementation of a new exchange provider.
+
+  - type: input
+    id: provider-name
+    attributes:
+      label: Provider Name
+      description: Name of the exchange (e.g., OKX, Bybit, Kraken)
+      placeholder: ex. OKX
+    validations:
+      required: true
+
+  - type: dropdown
+    id: quarter
+    attributes:
+      label: Target Quarter
+      description: When is this provider planned for?
+      options:
+        - Q1 2025
+        - Q2 2025
+        - Q3 2025
+        - Q4 2025
+        - Future
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: research
+    attributes:
+      label: 1. Research & Design
+      options:
+        - label: Study API documentation
+        - label: Design DTO structures
+        - label: Plan authentication strategy
+        - label: Identify supported order types
+        - label: Create technical design document
+
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: 2. Implementation
+      options:
+        - label: Create provider folder structure (Src/{Provider}/)
+        - label: Implement REST client
+        - label: Implement WebSocket client
+        - label: Create DTOs and response models
+        - label: Implement mappers (API → Domain)
+        - label: Add authentication helpers
+        - label: Implement order management
+        - label: Implement position management
+        - label: Add market data services
+
+  - type: checkboxes
+    id: testing
+    attributes:
+      label: 3. Testing
+      options:
+        - label: Write scenario-based tests
+        - label: Test market data endpoints
+        - label: Test user data endpoints
+        - label: Test order placement
+        - label: Test order cancellation
+        - label: Test all order types
+        - label: Achieve 90%+ test pass rate
+        - label: Test on testnet environment
+
+  - type: checkboxes
+    id: documentation
+    attributes:
+      label: 4. Documentation
+      options:
+        - label: Create provider-specific README
+        - label: Update main README
+        - label: Add code examples
+        - label: Document order types and features
+        - label: Add API reference
+        - label: Document known limitations
+
+  - type: checkboxes
+    id: release
+    attributes:
+      label: 5. Release
+      options:
+        - label: Update CHANGELOG.md
+        - label: Version bump
+        - label: Create release notes
+        - label: Publish to NPM
+        - label: Announce release
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any specific requirements, challenges, or considerations
+      placeholder: |
+        - Special authentication requirements
+        - Unique features of this provider
+        - Known limitations or issues
+
+  - type: textarea
+    id: resources
+    attributes:
+      label: Resources
+      description: Links to API documentation and other resources
+      placeholder: |
+        - API Docs: https://...
+        - Testnet: https://...
+        - SDK Examples: https://...
