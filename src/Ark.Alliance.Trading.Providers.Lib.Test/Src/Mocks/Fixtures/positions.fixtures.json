@@ -1,0 +1,128 @@
+{
+    "description": "Pre-defined position fixtures for mock testing",
+    "version": "1.0.0",
+    "fixtures": {
+        "profitablePositions": [
+            {
+                "id": "long_5pct_profit",
+                "symbol": "BTCUSDT",
+                "positionAmt": 0.01,
+                "entryPrice": 50000,
+                "markPrice": 52500,
+                "leverage": 10,
+                "marginType": "cross",
+                "profitPercent": 5,
+                "description": "Long position +5% profit"
+            },
+            {
+                "id": "short_3pct_profit",
+                "symbol": "ETHUSDT",
+                "positionAmt": -0.5,
+                "entryPrice": 3000,
+                "markPrice": 2910,
+                "leverage": 10,
+                "marginType": "isolated",
+                "profitPercent": 3,
+                "description": "Short position +3% profit"
+            }
+        ],
+        "lossPositions": [
+            {
+                "id": "long_2pct_loss",
+                "symbol": "BTCUSDT",
+                "positionAmt": 0.01,
+                "entryPrice": 50000,
+                "markPrice": 49000,
+                "leverage": 10,
+                "marginType": "cross",
+                "lossPercent": -2,
+                "description": "Long position -2% loss"
+            },
+            {
+                "id": "short_4pct_loss",
+                "symbol": "ETHUSDT",
+                "positionAmt": -0.5,
+                "entryPrice": 3000,
+                "markPrice": 3120,
+                "leverage": 10,
+                "marginType": "isolated",
+                "lossPercent": -4,
+                "description": "Short position -4% loss"
+            }
+        ],
+        "leverageScenarios": [
+            {
+                "id": "conservative_1x",
+                "symbol": "BTCUSDT",
+                "positionAmt": 1.0,
+                "entryPrice": 50000,
+                "markPrice": 50500,
+                "leverage": 1,
+                "marginType": "isolated",
+                "description": "Very safe 1x leverage"
+            },
+            {
+                "id": "moderate_25x",
+                "symbol": "BTCUSDT",
+                "positionAmt": 0.1,
+                "entryPrice": 50000,
+                "markPrice": 50750,
+                "leverage": 25,
+                "marginType": "cross",
+                "description": "Moderate 25x leverage"
+            },
+            {
+                "id": "aggressive_50x",
+                "symbol": "BTCUSDT",
+                "positionAmt": 0.08,
+                "entryPrice": 50000,
+                "markPrice": 50500,
+                "leverage": 50,
+                "marginType": "isolated",
+                "description": "Aggressive 50x leverage"
+            },
+            {
+                "id": "extreme_125x",
+                "symbol": "BTCUSDT",
+                "positionAmt": 0.05,
+                "entryPrice": 50000,
+                "markPrice": 50150,
+                "leverage": 125,
+                "marginType": "cross",
+                "description": "Maximum 125x leverage"
+            }
+        ],
+        "riskScenarios": [
+            {
+                "id": "near_liquidation_long",
+                "symbol": "BTCUSDT",
+                "positionAmt": 0.1,
+                "entryPrice": 50000,
+                "leverage": 20,
+                "marginType": "isolated",
+                "distanceToLiquidation": 0.01,
+                "description": "CRITICAL: 1% from liquidation"
+            },
+            {
+                "id": "near_liquidation_short",
+                "symbol": "ETHUSDT",
+                "positionAmt": -1.0,
+                "entryPrice": 3000,
+                "leverage": 20,
+                "marginType": "isolated",
+                "distanceToLiquidation": 0.015,
+                "description": "CRITICAL: 1.5% from liquidation"
+            }
+        ],
+        "neutralPositions": [
+            {
+                "id": "no_position_btc",
+                "symbol": "BTCUSDT",
+                "positionAmt": 0,
+                "entryPrice": 0,
+                "markPrice": 50000,
+                "description": "No active position"
+            }
+        ]
+    }
+}

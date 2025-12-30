@@ -1,0 +1,601 @@
+{
+    "version": "1.0.0",
+    "description": "Binance Futures Position Management Test Scenarios",
+    "scenarios": [
+        {
+            "id": "POS-001",
+            "name": "Open Long Position",
+            "description": "Open a new long position using market order",
+            "category": "positions",
+            "tags": [
+                "long",
+                "open",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.002
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "MARKET",
+                    "side": "BUY"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "close-position",
+                    "description": "Close any opened position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "reduceOnly": true,
+                        "quantity": 0.002
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "POS-002",
+            "name": "Open Short Position",
+            "description": "Open a new short position using market order",
+            "category": "positions",
+            "tags": [
+                "short",
+                "open",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "ETHUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "quantity": 0.05
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "MARKET",
+                    "side": "SELL"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "close-position",
+                    "description": "Close any opened position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "ETHUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "reduceOnly": true,
+                        "quantity": 0.05
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "POS-003",
+            "name": "Get Position Risk",
+            "description": "Query current position risk information",
+            "category": "positions",
+            "tags": [
+                "query",
+                "risk",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getPositionRisk",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "POS-004",
+            "name": "Increase Long Position",
+            "description": "Add to an existing long position",
+            "category": "positions",
+            "tags": [
+                "long",
+                "increase",
+                "scaling"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "open-initial-position",
+                    "description": "Open initial long position first",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "required": true
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.002
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "MARKET"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "close-all",
+                    "description": "Close entire position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "POS-005",
+            "name": "Partial Close Position",
+            "description": "Partially close an existing position",
+            "category": "positions",
+            "tags": [
+                "close",
+                "partial",
+                "scaling"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "open-position",
+                    "description": "Open position to partially close",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "required": true
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "quantity": 0.002,
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "reduceOnly": true
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "close-remaining",
+                    "description": "Close remaining position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "POS-006",
+            "name": "Full Close Position",
+            "description": "Close entire position using closePosition flag",
+            "category": "positions",
+            "tags": [
+                "close",
+                "full",
+                "position-management"
+            ],
+            "enabled": false,
+            "reason": "MARKET type with closePosition is not supported",
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "open-position",
+                    "description": "Open position to close",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "required": true
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "quantity": 0.002,
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "closePosition": true
+                }
+            }
+        },
+        {
+            "id": "POS-007",
+            "name": "Position Inversion (Long to Short)",
+            "description": "Flip position from long to short in single order",
+            "category": "positions",
+            "tags": [
+                "inversion",
+                "flip",
+                "advanced"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "open-long",
+                    "description": "Open initial long position for inversion",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "required": true
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "quantity": 0.003
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "MARKET"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "close-short",
+                    "description": "Close resulting short position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "POS-008",
+            "name": "Change Leverage",
+            "description": "Modify leverage for a trading pair",
+            "category": "positions",
+            "tags": [
+                "leverage",
+                "configuration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "setLeverage",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "leverage": 20
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "leverage": 20,
+                    "symbol": "BTCUSDT"
+                }
+            }
+        },
+        {
+            "id": "POS-009",
+            "name": "Change Margin Type to Isolated",
+            "description": "Switch margin type from cross to isolated",
+            "category": "positions",
+            "tags": [
+                "margin",
+                "isolated",
+                "configuration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "set-crossed",
+                    "description": "Ensure margin type is CROSSED before ensuring switch to ISOLATED",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "setMarginType",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "marginType": "CROSSED"
+                    },
+                    "continueOnError": true
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "setMarginType",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "marginType": "ISOLATED"
+                }
+            },
+            "expected": {
+                "success": true,
+                "allowErrorCodes": [
+                    -4046
+                ]
+            }
+        },
+        {
+            "id": "POS-010",
+            "name": "Change Margin Type to Cross",
+            "description": "Switch margin type from isolated to cross",
+            "category": "positions",
+            "tags": [
+                "margin",
+                "cross",
+                "configuration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "set-isolated",
+                    "description": "Ensure margin type is ISOLATED before ensuring switch to CROSSED",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "setMarginType",
+                    "parameters": {
+                        "symbol": "ETHUSDT",
+                        "marginType": "ISOLATED"
+                    },
+                    "continueOnError": true
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "setMarginType",
+            "input": {
+                "parameters": {
+                    "symbol": "ETHUSDT",
+                    "marginType": "CROSSED"
+                }
+            },
+            "expected": {
+                "success": true,
+                "allowErrorCodes": [
+                    -4046
+                ]
+            }
+        },
+        {
+            "id": "POS-011",
+            "name": "Get All Positions",
+            "description": "Query all open positions",
+            "category": "positions",
+            "tags": [
+                "query",
+                "all",
+                "multi-symbol"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getPositionRisk",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "POS-012",
+            "name": "Modify Isolated Position Margin",
+            "description": "Add margin to isolated position",
+            "category": "positions",
+            "tags": [
+                "margin",
+                "isolated",
+                "modify"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "set-isolated",
+                    "description": "Set margin type to isolated first",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "setMarginType",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "marginType": "ISOLATED"
+                    },
+                    "required": false
+                },
+                {
+                    "id": "open-position",
+                    "description": "Open position for margin modification",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "required": true
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "modifyIsolatedPositionMargin",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "amount": 10,
+                    "type": 1
+                }
+            },
+            "expected": {
+                "success": true
+            },
+            "cleanup": [
+                {
+                    "id": "close-position",
+                    "description": "Close the position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                }
+            ]
+        }
+    ]
+}

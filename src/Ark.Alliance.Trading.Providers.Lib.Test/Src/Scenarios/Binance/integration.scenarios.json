@@ -1,0 +1,1079 @@
+{
+    "version": "1.0.0",
+    "description": "Complex Integration Test Scenarios - Multi-step workflows with event verification",
+    "scenarios": [
+        {
+            "id": "INTEG-001",
+            "name": "Full Order Lifecycle with Events",
+            "description": "Create limit order, verify ORDER_UPDATE event, wait for fill, verify position creation, close position",
+            "category": "events",
+            "tags": [
+                "integration",
+                "lifecycle",
+                "events",
+                "limit",
+                "position"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            },
+            "setup": [
+                {
+                    "id": "get-current-price",
+                    "description": "Fetch current market price for realistic limit order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPrice",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "currentPrice"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.001,
+                    "price": "$currentPrice.price * 1.001",
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "NEW",
+                    "type": "LIMIT"
+                },
+                "events": [
+                    {
+                        "eventName": "ORDER_UPDATE",
+                        "data": {
+                            "symbol": "BTCUSDT",
+                            "side": "BUY",
+                            "orderStatus": "NEW"
+                        },
+                        "required": true,
+                        "timeoutMs": 15000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "description": "Cancel the limit order if not filled",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "continueOnError": true
+                },
+                {
+                    "id": "close-position",
+                    "description": "Close any position if order was filled",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                }
+            ],
+            "eventSource": {
+                "serviceClass": "BinanceEventListenerService",
+                "config": {
+                    "connectOnStart": true,
+                    "disconnectOnEnd": true
+                }
+            },
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            }
+        },
+        {
+            "id": "INTEG-002",
+            "name": "Limit Order Fill and Position Event",
+            "description": "Place aggressive limit order to ensure fill, verify POSITION_UPDATE event",
+            "category": "events",
+            "tags": [
+                "integration",
+                "fill",
+                "position-event",
+                "limit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            },
+            "setup": [
+                {
+                    "id": "get-book-ticker",
+                    "description": "Get best bid/ask for aggressive pricing",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getBookTicker",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "bookTicker"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.001,
+                    "price": "$bookTicker.askPrice",
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "FILLED"
+                },
+                "events": [
+                    {
+                        "eventName": "ORDER_UPDATE",
+                        "data": {
+                            "orderStatus": "FILLED"
+                        },
+                        "required": true,
+                        "timeoutMs": 15000
+                    },
+                    {
+                        "eventName": "POSITION_UPDATE",
+                        "data": {
+                            "symbol": "BTCUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 15000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "close-position",
+                    "description": "Close the position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                }
+            ],
+            "eventSource": {
+                "serviceClass": "BinanceEventListenerService",
+                "config": {
+                    "connectOnStart": true,
+                    "disconnectOnEnd": true
+                }
+            },
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            }
+        },
+        {
+            "id": "INTEG-003",
+            "name": "Modify Limit Order Price to Market",
+            "description": "Create limit order far from market, modify price closer to fill, verify order update events",
+            "category": "orders",
+            "tags": [
+                "integration",
+                "modify",
+                "limit",
+                "price-update"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            },
+            "setup": [
+                {
+                    "id": "get-price",
+                    "description": "Get current price",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPrice",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "marketPrice"
+                },
+                {
+                    "id": "place-far-limit",
+                    "description": "Place limit order 5% below market",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.001,
+                        "price": "$marketPrice.price * 0.95",
+                        "timeInForce": "GTC"
+                    },
+                    "required": true,
+                    "storeResultAs": "originalOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "modifyOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "orderId": "$originalOrder.orderId",
+                    "side": "BUY",
+                    "quantity": 0.001,
+                    "price": "$marketPrice.price * 0.99"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "ORDER_UPDATE",
+                        "data": {
+                            "orderStatus": "CANCELED"
+                        },
+                        "required": true,
+                        "timeoutMs": 15000
+                    },
+                    {
+                        "eventName": "ORDER_UPDATE",
+                        "data": {
+                            "orderStatus": "NEW"
+                        },
+                        "required": true,
+                        "timeoutMs": 15000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-all",
+                    "description": "Cancel any remaining orders",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "continueOnError": true
+                }
+            ],
+            "eventSource": {
+                "serviceClass": "BinanceEventListenerService",
+                "config": {
+                    "connectOnStart": true,
+                    "disconnectOnEnd": true
+                }
+            },
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            }
+        },
+        {
+            "id": "INTEG-004",
+            "name": "Partial Fill Detection",
+            "description": "Place large limit order at market to get partial fill, verify partial fill status and events",
+            "category": "orders",
+            "tags": [
+                "integration",
+                "partial-fill",
+                "orderbook",
+                "liquidity"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            },
+            "setup": [
+                {
+                    "id": "get-orderbook",
+                    "description": "Analyze orderbook depth for partial fill",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getOrderBook",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "limit": 5
+                    },
+                    "required": true,
+                    "storeResultAs": "orderBook"
+                },
+                {
+                    "id": "get-book-ticker",
+                    "description": "Get best ask for limit order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getBookTicker",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "bookTicker"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.5,
+                    "price": "$bookTicker.askPrice",
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "PARTIALLY_FILLED"
+                },
+                "events": [
+                    {
+                        "eventName": "ORDER_UPDATE",
+                        "data": {
+                            "orderStatus": "PARTIALLY_FILLED"
+                        },
+                        "required": false,
+                        "timeoutMs": 15000
+                    }
+                ]
+            },
+            "validation": {
+                "strictMatch": false,
+                "ignoreFields": [
+                    "status"
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-remaining",
+                    "description": "Cancel unfilled portion",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "continueOnError": true
+                },
+                {
+                    "id": "close-position",
+                    "description": "Close any filled portion",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                }
+            ],
+            "eventSource": {
+                "serviceClass": "BinanceEventListenerService",
+                "config": {
+                    "connectOnStart": true,
+                    "disconnectOnEnd": true
+                }
+            },
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            }
+        },
+        {
+            "id": "INTEG-005",
+            "name": "Complete Position Lifecycle",
+            "description": "Open position, add SL/TP, trigger close, verify all position events",
+            "category": "positions",
+            "tags": [
+                "integration",
+                "lifecycle",
+                "sl-tp",
+                "complete"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            },
+            "setup": [
+                {
+                    "id": "get-price",
+                    "description": "Get current price for SL/TP calculation",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPrice",
+                    "parameters": {
+                        "symbol": "ETHUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "entryPrice"
+                },
+                {
+                    "id": "open-position",
+                    "description": "Open a long position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "ETHUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.01
+                    },
+                    "required": true,
+                    "storeResultAs": "entryOrder"
+                },
+                {
+                    "id": "place-stop-loss",
+                    "description": "Set stop loss at 2% below entry",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "ETHUSDT",
+                        "side": "SELL",
+                        "type": "STOP_MARKET",
+                        "quantity": 0.01,
+                        "stopPrice": "$entryPrice.price * 0.98",
+                        "reduceOnly": true
+                    },
+                    "required": false,
+                    "storeResultAs": "stopOrder"
+                },
+                {
+                    "id": "place-take-profit",
+                    "description": "Set take profit at 3% above entry",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "ETHUSDT",
+                        "side": "SELL",
+                        "type": "TAKE_PROFIT_MARKET",
+                        "quantity": 0.01,
+                        "stopPrice": "$entryPrice.price * 1.03",
+                        "reduceOnly": true
+                    },
+                    "required": false,
+                    "storeResultAs": "tpOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "ETHUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "closePosition": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "FILLED",
+                    "closePosition": true
+                },
+                "events": [
+                    {
+                        "eventName": "ORDER_UPDATE",
+                        "data": {
+                            "symbol": "ETHUSDT",
+                            "orderStatus": "FILLED"
+                        },
+                        "required": true,
+                        "timeoutMs": 15000
+                    },
+                    {
+                        "eventName": "POSITION_UPDATE",
+                        "data": {
+                            "symbol": "ETHUSDT",
+                            "positionAmount": 0
+                        },
+                        "required": true,
+                        "timeoutMs": 15000
+                    },
+                    {
+                        "eventName": "ORDER_UPDATE",
+                        "data": {
+                            "orderStatus": "EXPIRED"
+                        },
+                        "required": false,
+                        "timeoutMs": 15000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-conditionals",
+                    "description": "Cancel any remaining conditional orders",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "ETHUSDT"
+                    },
+                    "continueOnError": true
+                }
+            ],
+            "eventSource": {
+                "serviceClass": "BinanceEventListenerService",
+                "config": {
+                    "connectOnStart": true,
+                    "disconnectOnEnd": true
+                }
+            },
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            }
+        },
+        {
+            "id": "INTEG-006",
+            "name": "Position Inversion with Event Verification",
+            "description": "Open long, flip to short, verify all position update events show correct transitions",
+            "category": "positions",
+            "tags": [
+                "integration",
+                "inversion",
+                "events",
+                "advanced"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            },
+            "setup": [
+                {
+                    "id": "open-long",
+                    "description": "Open initial long position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.001
+                    },
+                    "required": true,
+                    "storeResultAs": "longOrder"
+                },
+                {
+                    "id": "verify-long-position",
+                    "description": "Verify long position exists",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPositionRisk",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "longPosition"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "quantity": 0.003
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "FILLED",
+                    "side": "SELL"
+                },
+                "events": [
+                    {
+                        "eventName": "ORDER_UPDATE",
+                        "data": {
+                            "side": "SELL",
+                            "orderStatus": "FILLED"
+                        },
+                        "required": true,
+                        "timeoutMs": 15000
+                    },
+                    {
+                        "eventName": "POSITION_UPDATE",
+                        "data": {
+                            "symbol": "BTCUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 15000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "verify-short",
+                    "description": "Verify position is now short",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPositionRisk",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "continueOnError": true
+                },
+                {
+                    "id": "close-short",
+                    "description": "Close short position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                }
+            ],
+            "eventSource": {
+                "serviceClass": "BinanceEventListenerService",
+                "config": {
+                    "connectOnStart": true,
+                    "disconnectOnEnd": true
+                }
+            },
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            }
+        },
+        {
+            "id": "INTEG-007",
+            "name": "GTX Post-Only Rejection Handling",
+            "description": "Attempt GTX order that would take liquidity, verify proper rejection and no position change",
+            "category": "errors",
+            "tags": [
+                "integration",
+                "gtx",
+                "rejection",
+                "error-handling"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "get-book-ticker",
+                    "description": "Get current best ask to place crossing order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getBookTicker",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "bookTicker"
+                },
+                {
+                    "id": "get-position-before",
+                    "description": "Record position before test",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPositionRisk",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "positionBefore"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.001,
+                    "price": "$bookTicker.askPrice * 1.01",
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-5022",
+                "errorMessage": "would immediately match"
+            },
+            "cleanup": [
+                {
+                    "id": "verify-no-change",
+                    "description": "Verify position unchanged after rejection",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPositionRisk",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "INTEG-008",
+            "name": "Trailing Stop Activation Flow",
+            "description": "Open position, place trailing stop, verify activation price triggers",
+            "category": "algo-orders",
+            "tags": [
+                "integration",
+                "trailing",
+                "conditional",
+                "advanced"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            },
+            "setup": [
+                {
+                    "id": "get-price",
+                    "description": "Get current price for calculations",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPrice",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "currentPrice"
+                },
+                {
+                    "id": "open-position",
+                    "description": "Open long position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.001
+                    },
+                    "required": true,
+                    "storeResultAs": "entryOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "TRAILING_STOP_MARKET",
+                    "quantity": 0.001,
+                    "callbackRate": 1,
+                    "activationPrice": "$currentPrice.price * 1.02",
+                    "workingType": "MARK_PRICE",
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "TRAILING_STOP_MARKET",
+                    "status": "NEW"
+                },
+                "events": [
+                    {
+                        "eventName": "ORDER_UPDATE",
+                        "data": {
+                            "orderType": "TRAILING_STOP_MARKET",
+                            "orderStatus": "NEW"
+                        },
+                        "required": true,
+                        "timeoutMs": 15000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-trailing",
+                    "description": "Cancel trailing stop",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "continueOnError": true
+                },
+                {
+                    "id": "close-position",
+                    "description": "Close position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                }
+            ],
+            "eventSource": {
+                "serviceClass": "BinanceEventListenerService",
+                "config": {
+                    "connectOnStart": true,
+                    "disconnectOnEnd": true
+                }
+            },
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            }
+        },
+        {
+            "id": "INTEG-009",
+            "name": "Multi-Symbol Concurrent Positions",
+            "description": "Open positions in multiple symbols, verify independent position updates",
+            "category": "positions",
+            "tags": [
+                "integration",
+                "multi-symbol",
+                "concurrent",
+                "advanced"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "open-btc",
+                    "description": "Open BTC long",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.001
+                    },
+                    "required": true,
+                    "storeResultAs": "btcOrder"
+                },
+                {
+                    "id": "open-eth",
+                    "description": "Open ETH short",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "ETHUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.01
+                    },
+                    "required": true,
+                    "storeResultAs": "ethOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getPositionRisk",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            },
+            "cleanup": [
+                {
+                    "id": "close-btc",
+                    "description": "Close BTC position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                },
+                {
+                    "id": "close-eth",
+                    "description": "Close ETH position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "ETHUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "INTEG-010",
+            "name": "Order Update Cascade",
+            "description": "Place order, modify price, cancel, verify all ORDER_UPDATE events received in sequence",
+            "category": "events",
+            "tags": [
+                "integration",
+                "events",
+                "cascade",
+                "order-updates"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            },
+            "setup": [
+                {
+                    "id": "get-price",
+                    "description": "Get current price",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPrice",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "price"
+                },
+                {
+                    "id": "place-order",
+                    "description": "Place initial limit order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.001,
+                        "price": "$price.price * 0.90",
+                        "timeInForce": "GTC"
+                    },
+                    "required": true,
+                    "storeResultAs": "order1"
+                },
+                {
+                    "id": "modify-order",
+                    "description": "Modify order price",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "modifyOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "orderId": "$order1.orderId",
+                        "side": "BUY",
+                        "quantity": 0.001,
+                        "price": "$price.price * 0.92"
+                    },
+                    "required": false,
+                    "storeResultAs": "order2"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "cancelAllOpenOrders",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "ORDER_UPDATE",
+                        "data": {
+                            "orderStatus": "CANCELED"
+                        },
+                        "required": true,
+                        "timeoutMs": 15000
+                    }
+                ]
+            },
+            "eventSource": {
+                "serviceClass": "BinanceEventListenerService",
+                "config": {
+                    "connectOnStart": true,
+                    "disconnectOnEnd": true
+                }
+            },
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet",
+                "requiresLiveConnection": true
+            }
+        }
+    ]
+}

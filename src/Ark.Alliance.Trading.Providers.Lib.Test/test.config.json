@@ -1,0 +1,65 @@
+{
+    "version": "1.0.0",
+    "description": "Test configuration for Ark Alliance Trading Providers",
+    "defaultEnvironment": "TESTNET",
+    "defaultProvider": "binance",
+    "credentials": {
+        "binance-testnet": {
+            "name": "ArkTestnet",
+            "provider": "binance",
+            "network": "TESTNET",
+            "apiKey": "ChangeMe",
+            "apiSecret": "ChangeMe",
+            "baseUrl": "testnet.binancefuture.com",
+            "wsUrl": "wss://stream.binancefuture.com"
+        },
+        "binance-mainnet": {
+            "name": "Production",
+            "provider": "binance",
+            "network": "MAINNET",
+            "apiKey": "",
+            "apiSecret": "",
+            "baseUrl": "fapi.binance.com",
+            "wsUrl": "wss://fstream.binance.com"
+        },
+        "deribit-testnet": {
+            "name": "DeribitTest",
+            "provider": "deribit",
+            "network": "TESTNET",
+            "apiKey": "",
+            "apiSecret": "",
+            "baseUrl": "test.deribit.com",
+            "wsUrl": "wss://test.deribit.com/ws/api/v2"
+        }
+    },
+    "endpoints": {
+        "binance": {
+            "TESTNET": {
+                "rest": "https://testnet.binancefuture.com",
+                "ws": "wss://stream.binancefuture.com",
+                "wsStream": "wss://fstream.binancefuture.com"
+            },
+            "MAINNET": {
+                "rest": "https://fapi.binance.com",
+                "ws": "wss://fstream.binance.com",
+                "wsStream": "wss://fstream.binance.com/stream"
+            }
+        },
+        "deribit": {
+            "TESTNET": {
+                "rest": "https://test.deribit.com",
+                "ws": "wss://test.deribit.com/ws/api/v2"
+            },
+            "MAINNET": {
+                "rest": "https://www.deribit.com",
+                "ws": "wss://www.deribit.com/ws/api/v2"
+            }
+        }
+    },
+    "testSettings": {
+        "timeoutMs": 30000,
+        "retryAttempts": 3,
+        "retryDelayMs": 1000,
+        "logLevel": "info"
+    }
+}

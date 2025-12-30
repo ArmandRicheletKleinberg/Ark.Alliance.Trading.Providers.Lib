@@ -1,0 +1,565 @@
+{
+    "version": "1.0.0",
+    "description": "Rate Limit and API Weight Verification Scenarios",
+    "scenarios": [
+        {
+            "id": "RATE-001",
+            "name": "Verify Rate Limit Headers Tracking",
+            "description": "Execute request and verify X-MBX-USED-WEIGHT header is returned and tracked",
+            "category": "account",
+            "tags": [
+                "rate-limit",
+                "headers",
+                "tracking"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getExchangeInfo",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 1,
+                    "maxIpWeight": 2400,
+                    "headerName": "X-MBX-USED-WEIGHT-1M"
+                }
+            }
+        },
+        {
+            "id": "RATE-002",
+            "name": "Account Balance Weight (10)",
+            "description": "GET /fapi/v2/balance has weight of 10 per IP per minute",
+            "category": "account",
+            "tags": [
+                "rate-limit",
+                "balance",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getBalance",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 10,
+                    "endpoint": "GET /fapi/v2/balance"
+                }
+            }
+        },
+        {
+            "id": "RATE-003",
+            "name": "Account Info Weight (10)",
+            "description": "GET /fapi/v2/account has weight of 10 per IP per minute",
+            "category": "account",
+            "tags": [
+                "rate-limit",
+                "account",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getAccountInfo",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 10,
+                    "endpoint": "GET /fapi/v2/account"
+                }
+            }
+        },
+        {
+            "id": "RATE-004",
+            "name": "Position Risk Weight (10)",
+            "description": "GET /fapi/v2/positionRisk has weight of 10 per IP per minute",
+            "category": "positions",
+            "tags": [
+                "rate-limit",
+                "position",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getPositionRisk",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 10,
+                    "endpoint": "GET /fapi/v2/positionRisk"
+                }
+            }
+        },
+        {
+            "id": "RATE-005",
+            "name": "Place Order Weight (1) + Order Count",
+            "description": "POST /fapi/v1/order has weight 1 but counts toward order limit (1200/min)",
+            "category": "orders",
+            "tags": [
+                "rate-limit",
+                "order",
+                "weight",
+                "order-count"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "get-price",
+                    "description": "Get current price for limit order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPrice",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "price"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.001,
+                    "price": "$price.price * 0.90",
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 1,
+                    "orderCountHeader": "X-MBX-ORDER-COUNT-1M",
+                    "maxOrdersPerMin": 1200
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "description": "Cancel the test order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "RATE-006",
+            "name": "Cancel Order Weight (1)",
+            "description": "DELETE /fapi/v1/order has weight 1",
+            "category": "orders",
+            "tags": [
+                "rate-limit",
+                "cancel",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "get-price",
+                    "description": "Get current price",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPrice",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "price"
+                },
+                {
+                    "id": "place-order",
+                    "description": "Place order to cancel",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.001,
+                        "price": "$price.price * 0.85",
+                        "timeInForce": "GTC"
+                    },
+                    "required": true,
+                    "storeResultAs": "order"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "cancelOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "orderId": "$order.orderId"
+                }
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 1,
+                    "endpoint": "DELETE /fapi/v1/order"
+                }
+            }
+        },
+        {
+            "id": "RATE-007",
+            "name": "Get Open Orders Weight (1 or 40)",
+            "description": "GET /fapi/v1/openOrders weight 1 with symbol, 40 without",
+            "category": "orders",
+            "tags": [
+                "rate-limit",
+                "query",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getOpenOrders",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 1,
+                    "note": "Weight is 40 without symbol filter"
+                }
+            }
+        },
+        {
+            "id": "RATE-008",
+            "name": "Get All Open Orders Weight (40)",
+            "description": "GET /fapi/v1/openOrders without symbol has weight 40",
+            "category": "orders",
+            "tags": [
+                "rate-limit",
+                "query",
+                "all",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getOpenOrders",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 40,
+                    "endpoint": "GET /fapi/v1/openOrders (no symbol)"
+                }
+            }
+        },
+        {
+            "id": "RATE-009",
+            "name": "Klines/Candlestick Data Weight",
+            "description": "GET /fapi/v1/klines weight varies by limit (5 for default)",
+            "category": "market-data",
+            "tags": [
+                "rate-limit",
+                "klines",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getKlines",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "interval": "1h",
+                    "limit": 100
+                }
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 5,
+                    "note": "Weight: 1-100=1, 101-500=2, 501-1000=5, 1001-1500=10"
+                }
+            }
+        },
+        {
+            "id": "RATE-010",
+            "name": "Order Book Depth Weight",
+            "description": "GET /fapi/v1/depth weight varies by limit",
+            "category": "market-data",
+            "tags": [
+                "rate-limit",
+                "orderbook",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getOrderBook",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "limit": 100
+                }
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 10,
+                    "note": "Weight: 5-50=2, 100=5, 500=10, 1000=20"
+                }
+            }
+        },
+        {
+            "id": "RATE-011",
+            "name": "Cumulative Weight Tracking",
+            "description": "Execute multiple requests and verify cumulative weight is tracked",
+            "category": "account",
+            "tags": [
+                "rate-limit",
+                "cumulative",
+                "tracking"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "req1-price",
+                    "description": "First request - Get price (weight 1)",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPrice",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "req1"
+                },
+                {
+                    "id": "req2-ticker",
+                    "description": "Second request - Get ticker (weight 1)",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "get24hrTicker",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "req2"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getBalance",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedCumulativeWeight": 12,
+                    "breakdown": "price(1) + ticker(1) + balance(10) = 12"
+                }
+            }
+        },
+        {
+            "id": "RATE-012",
+            "name": "Leverage Bracket Query Weight (1)",
+            "description": "GET /fapi/v1/leverageBracket has weight 1",
+            "category": "account",
+            "tags": [
+                "rate-limit",
+                "leverage",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getLeverageBracket",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 1,
+                    "endpoint": "GET /fapi/v1/leverageBracket"
+                }
+            }
+        },
+        {
+            "id": "RATE-013",
+            "name": "Trade History Weight (5)",
+            "description": "GET /fapi/v1/userTrades has weight 5",
+            "category": "account",
+            "tags": [
+                "rate-limit",
+                "trades",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getTradeHistory",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "limit": 50
+                }
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 5,
+                    "endpoint": "GET /fapi/v1/userTrades"
+                }
+            }
+        },
+        {
+            "id": "RATE-014",
+            "name": "Income History Weight (30)",
+            "description": "GET /fapi/v1/income has weight 30",
+            "category": "account",
+            "tags": [
+                "rate-limit",
+                "income",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getIncomeHistory",
+            "input": {
+                "parameters": {
+                    "limit": 100
+                }
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 30,
+                    "endpoint": "GET /fapi/v1/income"
+                }
+            }
+        },
+        {
+            "id": "RATE-015",
+            "name": "Set Leverage Weight (1)",
+            "description": "POST /fapi/v1/leverage has weight 1",
+            "category": "positions",
+            "tags": [
+                "rate-limit",
+                "leverage",
+                "weight"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "setLeverage",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "leverage": 10
+                }
+            },
+            "expected": {
+                "success": true,
+                "rateLimit": {
+                    "expectedWeight": 1,
+                    "endpoint": "POST /fapi/v1/leverage"
+                }
+            }
+        }
+    ]
+}

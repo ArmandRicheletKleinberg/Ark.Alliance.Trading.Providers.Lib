@@ -1,0 +1,401 @@
+{
+    "version": "1.0.0",
+    "description": "Binance Futures Market Data Test Scenarios",
+    "scenarios": [
+        {
+            "id": "MKT-001",
+            "name": "Get Exchange Info",
+            "description": "Query exchange trading rules and symbol information",
+            "category": "market-data",
+            "tags": [
+                "exchange-info",
+                "symbols",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getExchangeInfo",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "timezone": "UTC"
+                }
+            }
+        },
+        {
+            "id": "MKT-002",
+            "name": "Get Symbol Price Ticker",
+            "description": "Query current price for a specific symbol",
+            "category": "market-data",
+            "tags": [
+                "price",
+                "ticker",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getPrice",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTCUSDT"
+                }
+            }
+        },
+        {
+            "id": "MKT-003",
+            "name": "Get All Prices",
+            "description": "Query current prices for all symbols",
+            "category": "market-data",
+            "tags": [
+                "price",
+                "all",
+                "ticker"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getAllPrices",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "MKT-004",
+            "name": "Get Order Book",
+            "description": "Query order book depth for symbol",
+            "category": "market-data",
+            "tags": [
+                "orderbook",
+                "depth",
+                "liquidity"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getOrderBook",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true
+            }
+        },
+        {
+            "id": "MKT-005",
+            "name": "Get Klines (Candlesticks)",
+            "description": "Query kline/candlestick data for symbol",
+            "category": "market-data",
+            "tags": [
+                "klines",
+                "candlesticks",
+                "chart"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getKlines",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "interval": "1h",
+                    "limit": 100
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "MKT-006",
+            "name": "Get 24hr Ticker",
+            "description": "Query 24-hour rolling window price statistics",
+            "category": "market-data",
+            "tags": [
+                "ticker",
+                "24h",
+                "statistics"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "get24hrTicker",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTCUSDT"
+                }
+            }
+        },
+        {
+            "id": "MKT-007",
+            "name": "Get Mark Price",
+            "description": "Query mark price and funding rate for symbol",
+            "category": "market-data",
+            "tags": [
+                "mark-price",
+                "funding",
+                "perpetual"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getMarkPrice",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTCUSDT"
+                }
+            }
+        },
+        {
+            "id": "MKT-008",
+            "name": "Get Funding Rate History",
+            "description": "Query historical funding rate data",
+            "category": "market-data",
+            "tags": [
+                "funding",
+                "history",
+                "perpetual"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getFundingRate",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "MKT-009",
+            "name": "Get Recent Trades",
+            "description": "Query recent public trades for symbol",
+            "category": "market-data",
+            "tags": [
+                "trades",
+                "recent",
+                "public"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getRecentTrades",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "MKT-010",
+            "name": "Get Aggregate Trades",
+            "description": "Query compressed/aggregate trade data",
+            "category": "market-data",
+            "tags": [
+                "trades",
+                "aggregate",
+                "compressed"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getAggTrades",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "MKT-011",
+            "name": "Get Open Interest",
+            "description": "Query current open interest for symbol",
+            "category": "market-data",
+            "tags": [
+                "open-interest",
+                "volume",
+                "market"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getOpenInterest",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTCUSDT"
+                }
+            }
+        },
+        {
+            "id": "MKT-012",
+            "name": "Server Time Check",
+            "description": "Query server time for synchronization",
+            "category": "market-data",
+            "tags": [
+                "time",
+                "sync",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getServerTime",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true
+            }
+        },
+        {
+            "id": "MKT-013",
+            "name": "Ping Endpoint",
+            "description": "Test connectivity to the API",
+            "category": "market-data",
+            "tags": [
+                "ping",
+                "connectivity",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "ping",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true
+            }
+        },
+        {
+            "id": "MKT-014",
+            "name": "Get Book Ticker",
+            "description": "Query best price/qty on the order book",
+            "category": "market-data",
+            "tags": [
+                "book-ticker",
+                "best-price",
+                "orderbook"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getBookTicker",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTCUSDT"
+                }
+            }
+        }
+    ]
+}

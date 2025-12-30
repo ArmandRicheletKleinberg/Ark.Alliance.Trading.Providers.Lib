@@ -1,0 +1,322 @@
+{
+    "version": "1.0.0",
+    "description": "Mock-based unit tests for BinanceRestClient - runs without live connection",
+    "scenarios": [
+        {
+            "id": "MOCK-001",
+            "name": "Order Mapper - Market Order",
+            "description": "Test OrderMapper with mock market order response",
+            "category": "clients",
+            "tags": [
+                "mock",
+                "mapper",
+                "order",
+                "unit-test"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapMarketOrder",
+            "input": {
+                "parameters": {},
+                "mockData": {
+                    "symbol": "BTCUSDT",
+                    "orderId": 123456789,
+                    "clientOrderId": "test_mock_001",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "status": "FILLED",
+                    "origQty": "0.001",
+                    "executedQty": "0.001",
+                    "avgPrice": "50000.00",
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "status": "FILLED"
+                }
+            }
+        },
+        {
+            "id": "MOCK-002",
+            "name": "Order Mapper - Limit Order",
+            "description": "Test OrderMapper with mock limit order response",
+            "category": "clients",
+            "tags": [
+                "mock",
+                "mapper",
+                "order",
+                "unit-test"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapLimitOrder",
+            "input": {
+                "parameters": {},
+                "mockData": {
+                    "symbol": "ETHUSDT",
+                    "orderId": 987654321,
+                    "clientOrderId": "test_mock_002",
+                    "side": "SELL",
+                    "type": "LIMIT",
+                    "status": "NEW",
+                    "price": "3000.00",
+                    "origQty": "0.1",
+                    "executedQty": "0",
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "ETHUSDT",
+                    "side": "SELL",
+                    "type": "LIMIT",
+                    "status": "NEW"
+                }
+            }
+        },
+        {
+            "id": "MOCK-003",
+            "name": "Order Mapper - Stop Limit Order",
+            "description": "Test OrderMapper with mock stop limit order",
+            "category": "clients",
+            "tags": [
+                "mock",
+                "mapper",
+                "order",
+                "unit-test"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapStopLimitOrder",
+            "input": {
+                "parameters": {},
+                "mockData": {
+                    "symbol": "BTCUSDT",
+                    "orderId": 555555555,
+                    "clientOrderId": "test_mock_003",
+                    "side": "SELL",
+                    "type": "STOP",
+                    "status": "NEW",
+                    "price": "48000.00",
+                    "stopPrice": "49000.00",
+                    "origQty": "0.002",
+                    "executedQty": "0",
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "STOP",
+                    "status": "NEW"
+                }
+            }
+        },
+        {
+            "id": "MOCK-004",
+            "name": "Position Mapper - Long Position",
+            "description": "Test PositionMapper with mock long position",
+            "category": "positions",
+            "tags": [
+                "mock",
+                "mapper",
+                "position",
+                "unit-test"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false
+            },
+            "targetClass": "PositionMapperTests",
+            "targetMethod": "testMapLongPosition",
+            "input": {
+                "parameters": {},
+                "mockData": {
+                    "symbol": "BTCUSDT",
+                    "positionAmt": "0.01",
+                    "entryPrice": "50000.00",
+                    "markPrice": "51000.00",
+                    "unRealizedProfit": "10.00",
+                    "liquidationPrice": "45000.00",
+                    "leverage": "10",
+                    "marginType": "cross",
+                    "positionSide": "LONG"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTCUSDT",
+                    "side": "LONG",
+                    "size": 0.01
+                }
+            }
+        },
+        {
+            "id": "MOCK-005",
+            "name": "Position Mapper - Short Position",
+            "description": "Test PositionMapper with mock short position",
+            "category": "positions",
+            "tags": [
+                "mock",
+                "mapper",
+                "position",
+                "unit-test"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false
+            },
+            "targetClass": "PositionMapperTests",
+            "targetMethod": "testMapShortPosition",
+            "input": {
+                "parameters": {},
+                "mockData": {
+                    "symbol": "ETHUSDT",
+                    "positionAmt": "-0.5",
+                    "entryPrice": "3000.00",
+                    "markPrice": "2900.00",
+                    "unRealizedProfit": "50.00",
+                    "liquidationPrice": "3500.00",
+                    "leverage": "5",
+                    "marginType": "isolated",
+                    "positionSide": "SHORT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "ETHUSDT",
+                    "side": "SHORT"
+                }
+            }
+        },
+        {
+            "id": "MOCK-006",
+            "name": "Order Status Transitions",
+            "description": "Test order status mapping from all Binance statuses",
+            "category": "clients",
+            "tags": [
+                "mock",
+                "mapper",
+                "status",
+                "unit-test"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testOrderStatusMapping",
+            "input": {
+                "parameters": {
+                    "statuses": [
+                        "NEW",
+                        "PARTIALLY_FILLED",
+                        "FILLED",
+                        "CANCELED",
+                        "EXPIRED"
+                    ]
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "allMapped": true
+                }
+            }
+        },
+        {
+            "id": "MOCK-007",
+            "name": "Order Side Mapping",
+            "description": "Test order side mapping BUY/SELL",
+            "category": "clients",
+            "tags": [
+                "mock",
+                "mapper",
+                "unit-test"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testOrderSideMapping",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "buyMapped": true,
+                    "sellMapped": true
+                }
+            }
+        },
+        {
+            "id": "MOCK-008",
+            "name": "Time In Force Mapping",
+            "description": "Test TimeInForce mapping GTC/IOC/FOK/GTX",
+            "category": "clients",
+            "tags": [
+                "mock",
+                "mapper",
+                "unit-test"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testTimeInForceMapping",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "allTifMapped": true
+                }
+            }
+        }
+    ]
+}

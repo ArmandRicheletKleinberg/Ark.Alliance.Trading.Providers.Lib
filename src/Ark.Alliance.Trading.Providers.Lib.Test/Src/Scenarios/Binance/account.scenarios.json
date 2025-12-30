@@ -1,0 +1,238 @@
+{
+    "version": "1.0.0",
+    "description": "Binance Futures Account and Balance Test Scenarios",
+    "scenarios": [
+        {
+            "id": "ACC-001",
+            "name": "Get Account Information",
+            "description": "Query complete account information including balances and positions",
+            "category": "account",
+            "tags": [
+                "account",
+                "balance",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getAccountInfo",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "canTrade": true,
+                    "canDeposit": true,
+                    "canWithdraw": true
+                }
+            }
+        },
+        {
+            "id": "ACC-002",
+            "name": "Get Account Balance",
+            "description": "Query account asset balances",
+            "category": "account",
+            "tags": [
+                "balance",
+                "assets",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getBalance",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "ACC-003",
+            "name": "Get USDT Balance",
+            "description": "Query specific USDT asset balance - returns array, filter client-side",
+            "category": "account",
+            "tags": [
+                "balance",
+                "usdt",
+                "specific"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getBalance",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "ACC-004",
+            "name": "Get Income History",
+            "description": "Query account income history (trades, funding, etc.)",
+            "category": "account",
+            "tags": [
+                "income",
+                "history",
+                "analysis"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getIncome",
+            "input": {
+                "parameters": {
+                    "limit": 50
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "ACC-005",
+            "name": "Get Trade History",
+            "description": "Query account trade history for a symbol",
+            "category": "account",
+            "tags": [
+                "trades",
+                "history",
+                "symbol"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getUserTrades",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "options": {
+                        "limit": 5
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "ACC-006",
+            "name": "Get Commission Rate",
+            "description": "Query current commission rate for a symbol",
+            "category": "account",
+            "tags": [
+                "commission",
+                "fees",
+                "symbol"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getCommissionRate",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTCUSDT"
+                }
+            }
+        },
+        {
+            "id": "ACC-007",
+            "name": "Get Notional and Leverage Brackets",
+            "description": "Query notional and leverage brackets for a symbol",
+            "category": "account",
+            "tags": [
+                "leverage",
+                "brackets",
+                "risk"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getLeverageBracket",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "ACC-008",
+            "name": "Get Position Mode",
+            "description": "Query current position mode (one-way or hedge)",
+            "category": "account",
+            "tags": [
+                "position-mode",
+                "hedge",
+                "config"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getPositionMode",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true
+            }
+        }
+    ]
+}

@@ -1,0 +1,222 @@
+{
+    "description": "Pre-defined event sequences for mock testing",
+    "version": "1.0.0",
+    "sequences": {
+        "orderLifecycles": [
+            {
+                "id": "market_order_instant_fill",
+                "description": "Market order fills immediately",
+                "steps": [
+                    {
+                        "delay": 0,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "NEW"
+                    },
+                    {
+                        "delay": 50,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "FILLED"
+                    },
+                    {
+                        "delay": 100,
+                        "event": "ACCOUNT_UPDATE",
+                        "reason": "ORDER"
+                    }
+                ]
+            },
+            {
+                "id": "limit_order_delayed_fill",
+                "description": "Limit order fills after delay",
+                "steps": [
+                    {
+                        "delay": 0,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "NEW"
+                    },
+                    {
+                        "delay": 5000,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "FILLED"
+                    },
+                    {
+                        "delay": 5100,
+                        "event": "ACCOUNT_UPDATE",
+                        "reason": "ORDER"
+                    }
+                ]
+            }
+        ],
+        "partialFills": [
+            {
+                "id": "three_step_partial_fill",
+                "description": "Order fills in 3 steps (33%, 66%, 100%)",
+                "steps": [
+                    {
+                        "delay": 0,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "NEW"
+                    },
+                    {
+                        "delay": 100,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "PARTIALLY_FILLED",
+                        "fillPercent": 33
+                    },
+                    {
+                        "delay": 200,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "PARTIALLY_FILLED",
+                        "fillPercent": 66
+                    },
+                    {
+                        "delay": 300,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "FILLED",
+                        "fillPercent": 100
+                    },
+                    {
+                        "delay": 350,
+                        "event": "ACCOUNT_UPDATE",
+                        "reason": "ORDER"
+                    }
+                ]
+            }
+        ],
+        "conditionalOrders": [
+            {
+                "id": "stop_loss_trigger",
+                "description": "Stop loss triggers and fills",
+                "steps": [
+                    {
+                        "delay": 0,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "NEW",
+                        "note": "Stop order placed"
+                    },
+                    {
+                        "delay": 50,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "FILLED",
+                        "note": "Price hit stop, order filled"
+                    },
+                    {
+                        "delay": 100,
+                        "event": "ACCOUNT_UPDATE",
+                        "reason": "STOP",
+                        "note": "Position closed"
+                    }
+                ]
+            },
+            {
+                "id": "take_profit_trigger",
+                "description": "Take profit triggers and fills",
+                "steps": [
+                    {
+                        "delay": 0,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "NEW",
+                        "note": "TP order placed"
+                    },
+                    {
+                        "delay": 50,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "FILLED",
+                        "note": "Price hit TP, order filled"
+                    },
+                    {
+                        "delay": 100,
+                        "event": "ACCOUNT_UPDATE",
+                        "reason": "TAKE_PROFIT",
+                        "note": "Position closed with profit"
+                    }
+                ]
+            }
+        ],
+        "positionTransitions": [
+            {
+                "id": "long_to_short_inversion",
+                "description": "Close long, open short (position inversion)",
+                "steps": [
+                    {
+                        "delay": 0,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "FILLED",
+                        "note": "Close long position"
+                    },
+                    {
+                        "delay": 50,
+                        "event": "ACCOUNT_UPDATE",
+                        "reason": "ORDER",
+                        "positionAmt": 0,
+                        "note": "Position neutral"
+                    },
+                    {
+                        "delay": 100,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "FILLED",
+                        "note": "Open short position"
+                    },
+                    {
+                        "delay": 150,
+                        "event": "ACCOUNT_UPDATE",
+                        "reason": "ORDER",
+                        "positionAmt": -0.01,
+                        "note": "Now short"
+                    }
+                ]
+            }
+        ],
+        "riskEvents": [
+            {
+                "id": "margin_call_warning",
+                "description": "Margin call triggered near liquidation",
+                "steps": [
+                    {
+                        "delay": 0,
+                        "event": "MARGIN_CALL",
+                        "note": "Position approaching liquidation"
+                    },
+                    {
+                        "delay": 100,
+                        "event": "ACCOUNT_UPDATE",
+                        "reason": "MARGIN_CALL",
+                        "note": "Account update with margin info"
+                    }
+                ]
+            }
+        ],
+        "cancellations": [
+            {
+                "id": "user_cancel_pending_order",
+                "description": "User cancels pending limit order",
+                "steps": [
+                    {
+                        "delay": 0,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "NEW",
+                        "note": "Order placed"
+                    },
+                    {
+                        "delay": 1000,
+                        "event": "ORDER_TRADE_UPDATE",
+                        "status": "CANCELED",
+                        "note": "User canceled order"
+                    }
+                ]
+            }
+        ],
+        "connectionEvents": [
+            {
+                "id": "listen_key_expiration",
+                "description": "WebSocket listen key expires",
+                "steps": [
+                    {
+                        "delay": 0,
+                        "event": "listenKeyExpired",
+                        "note": "Need to reconnect with new listen key"
+                    }
+                ]
+            }
+        ]
+    }
+}

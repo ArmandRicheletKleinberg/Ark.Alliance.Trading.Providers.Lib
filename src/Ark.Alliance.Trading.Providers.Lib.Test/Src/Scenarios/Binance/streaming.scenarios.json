@@ -1,0 +1,829 @@
+{
+    "version": "1.0.0",
+    "description": "WebSocket Streaming Test Scenarios - Subscribe, Disconnect, Reconnect",
+    "scenarios": [
+        {
+            "id": "WS-001",
+            "name": "Subscribe to Single Ticker Stream",
+            "description": "Connect to WebSocket and subscribe to BTCUSDT ticker stream",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "ticker",
+                "single"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "wsUrl": "wss://stream.binancefuture.com/ws"
+            },
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "subscribeTicker",
+            "input": {
+                "parameters": {
+                    "symbol": "btcusdt"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "ticker",
+                        "data": {
+                            "symbol": "BTCUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 5000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "unsubscribe",
+                    "description": "Unsubscribe from ticker stream",
+                    "targetClass": "BinanceWebSocketClient",
+                    "targetMethod": "unsubscribeTicker",
+                    "parameters": {
+                        "symbol": "btcusdt"
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "WS-002",
+            "name": "Subscribe to Multiple Ticker Streams",
+            "description": "Subscribe to BTC, ETH, SOL ticker streams simultaneously",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "ticker",
+                "multi"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "wsUrl": "wss://stream.binancefuture.com/stream"
+            },
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "subscribeTickers",
+            "input": {
+                "parameters": {
+                    "symbols": [
+                        "btcusdt",
+                        "ethusdt",
+                        "solusdt"
+                    ]
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "ticker",
+                        "data": {
+                            "symbol": "BTCUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 10000
+                    },
+                    {
+                        "eventName": "ticker",
+                        "data": {
+                            "symbol": "ETHUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 10000
+                    },
+                    {
+                        "eventName": "ticker",
+                        "data": {
+                            "symbol": "SOLUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 10000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "unsubscribe-all",
+                    "description": "Unsubscribe from all ticker streams",
+                    "targetClass": "BinanceWebSocketClient",
+                    "targetMethod": "unsubscribeAll",
+                    "parameters": {},
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "WS-003",
+            "name": "Subscribe to Kline/Candlestick Stream",
+            "description": "Subscribe to 1-minute kline stream for BTCUSDT",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "kline"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "subscribeKline",
+            "input": {
+                "parameters": {
+                    "symbol": "btcusdt",
+                    "interval": "1m"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "kline",
+                        "data": {
+                            "symbol": "BTCUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 65000
+                    }
+                ]
+            }
+        },
+        {
+            "id": "WS-004",
+            "name": "Subscribe to Order Book Depth",
+            "description": "Subscribe to partial depth stream (top 5 levels)",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "depth",
+                "orderbook"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "subscribeDepth",
+            "input": {
+                "parameters": {
+                    "symbol": "btcusdt",
+                    "levels": 5,
+                    "updateSpeed": "500ms"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "depthUpdate",
+                        "data": {
+                            "symbol": "BTCUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 2000
+                    }
+                ]
+            }
+        },
+        {
+            "id": "WS-005",
+            "name": "Subscribe to Aggregate Trades",
+            "description": "Subscribe to aggregated trade stream",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "trades",
+                "aggTrade"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "subscribeAggTrade",
+            "input": {
+                "parameters": {
+                    "symbol": "btcusdt"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "aggTrade",
+                        "data": {
+                            "symbol": "BTCUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 10000
+                    }
+                ]
+            }
+        },
+        {
+            "id": "WS-006",
+            "name": "Subscribe to User Data Stream",
+            "description": "Subscribe to authenticated user data stream for account/order updates",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "userData",
+                "authenticated"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "get-listen-key",
+                    "description": "Get listen key for user data stream",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getListenKey",
+                    "parameters": {},
+                    "required": true,
+                    "storeResultAs": "listenKey"
+                }
+            ],
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "subscribeUserData",
+            "input": {
+                "parameters": {
+                    "listenKey": "$listenKey.listenKey"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "connected": true
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "close-listen-key",
+                    "description": "Close listen key",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "closeListenKey",
+                    "parameters": {
+                        "listenKey": "$listenKey.listenKey"
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "WS-007",
+            "name": "Disconnect and Reconnect",
+            "description": "Test WebSocket disconnect handling and automatic reconnection",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "disconnect",
+                "reconnect",
+                "resilience"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "setup": [
+                {
+                    "id": "initial-connect",
+                    "description": "Establish initial connection",
+                    "targetClass": "BinanceWebSocketClient",
+                    "targetMethod": "connect",
+                    "parameters": {},
+                    "required": true
+                },
+                {
+                    "id": "subscribe-ticker",
+                    "description": "Subscribe to ticker",
+                    "targetClass": "BinanceWebSocketClient",
+                    "targetMethod": "subscribeTicker",
+                    "parameters": {
+                        "symbol": "btcusdt"
+                    },
+                    "required": true
+                },
+                {
+                    "id": "force-disconnect",
+                    "description": "Force disconnect to test reconnection",
+                    "targetClass": "BinanceWebSocketClient",
+                    "targetMethod": "forceDisconnect",
+                    "parameters": {},
+                    "required": true
+                }
+            ],
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "waitForReconnect",
+            "input": {
+                "parameters": {
+                    "timeoutMs": 30000
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "reconnected": true
+                },
+                "events": [
+                    {
+                        "eventName": "reconnected",
+                        "required": true,
+                        "timeoutMs": 30000
+                    },
+                    {
+                        "eventName": "ticker",
+                        "data": {
+                            "symbol": "BTCUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 35000
+                    }
+                ]
+            }
+        },
+        {
+            "id": "WS-008",
+            "name": "Subscription Resubscribe After Reconnect",
+            "description": "Verify subscriptions are restored after reconnection",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "reconnect",
+                "resubscribe"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "setup": [
+                {
+                    "id": "connect",
+                    "description": "Connect and subscribe to multiple streams",
+                    "targetClass": "BinanceWebSocketClient",
+                    "targetMethod": "subscribeTickers",
+                    "parameters": {
+                        "symbols": [
+                            "btcusdt",
+                            "ethusdt"
+                        ]
+                    },
+                    "required": true
+                },
+                {
+                    "id": "force-disconnect",
+                    "description": "Simulate connection drop",
+                    "targetClass": "BinanceWebSocketClient",
+                    "targetMethod": "forceDisconnect",
+                    "parameters": {},
+                    "required": true
+                },
+                {
+                    "id": "wait-reconnect",
+                    "description": "Wait for auto-reconnect",
+                    "targetClass": "BinanceWebSocketClient",
+                    "targetMethod": "waitForReconnect",
+                    "parameters": {
+                        "timeoutMs": 30000
+                    },
+                    "required": true
+                }
+            ],
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "getActiveSubscriptions",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "subscriptionCount": 2
+                }
+            }
+        },
+        {
+            "id": "WS-009",
+            "name": "Mark Price Stream",
+            "description": "Subscribe to mark price stream for liquidation monitoring",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "markPrice"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "subscribeMarkPrice",
+            "input": {
+                "parameters": {
+                    "symbol": "btcusdt"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "markPriceUpdate",
+                        "data": {
+                            "symbol": "BTCUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 5000
+                    }
+                ]
+            }
+        },
+        {
+            "id": "WS-010",
+            "name": "All Market Tickers Stream",
+            "description": "Subscribe to all market tickers (high bandwidth)",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "allTickers",
+                "broadcast"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "subscribeAllTickers",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "allTickers",
+                        "required": true,
+                        "timeoutMs": 5000
+                    }
+                ]
+            }
+        },
+        {
+            "id": "WS-011",
+            "name": "Combined Stream Connection",
+            "description": "Test combined stream for multiple data types",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "combined",
+                "multi-stream"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "wsUrl": "wss://fstream.binance.com/stream"
+            },
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "subscribeCombined",
+            "input": {
+                "parameters": {
+                    "streams": [
+                        "btcusdt@ticker",
+                        "btcusdt@depth5@500ms",
+                        "ethusdt@ticker"
+                    ]
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "ticker",
+                        "data": {
+                            "symbol": "BTCUSDT"
+                        },
+                        "required": true,
+                        "timeoutMs": 5000
+                    },
+                    {
+                        "eventName": "depthUpdate",
+                        "required": true,
+                        "timeoutMs": 2000
+                    }
+                ]
+            }
+        },
+        {
+            "id": "WS-012",
+            "name": "Order Update Events via User Data",
+            "description": "Verify ORDER_UPDATE events received after placing order",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "userData",
+                "orderUpdate",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "get-listen-key",
+                    "description": "Get listen key",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getListenKey",
+                    "parameters": {},
+                    "required": true,
+                    "storeResultAs": "listenKey"
+                },
+                {
+                    "id": "subscribe-user-data",
+                    "description": "Subscribe to user data stream",
+                    "targetClass": "BinanceWebSocketClient",
+                    "targetMethod": "subscribeUserData",
+                    "parameters": {
+                        "listenKey": "$listenKey.listenKey"
+                    },
+                    "required": true
+                },
+                {
+                    "id": "get-price",
+                    "description": "Get current price",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getPrice",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "required": true,
+                    "storeResultAs": "price"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.001,
+                    "price": "$price.price * 0.90",
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "ORDER_TRADE_UPDATE",
+                        "data": {
+                            "symbol": "BTCUSDT",
+                            "side": "BUY",
+                            "orderStatus": "NEW"
+                        },
+                        "required": true,
+                        "timeoutMs": 5000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "description": "Cancel test order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    },
+                    "continueOnError": true
+                },
+                {
+                    "id": "close-listen-key",
+                    "description": "Close listen key",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "closeListenKey",
+                    "parameters": {
+                        "listenKey": "$listenKey.listenKey"
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "WS-013",
+            "name": "Position Update Events",
+            "description": "Verify ACCOUNT_UPDATE events after position change",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "userData",
+                "positionUpdate",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "get-listen-key",
+                    "description": "Get listen key",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getListenKey",
+                    "parameters": {},
+                    "required": true,
+                    "storeResultAs": "listenKey"
+                },
+                {
+                    "id": "subscribe-user-data",
+                    "description": "Subscribe to user data stream",
+                    "targetClass": "BinanceWebSocketClient",
+                    "targetMethod": "subscribeUserData",
+                    "parameters": {
+                        "listenKey": "$listenKey.listenKey"
+                    },
+                    "required": true
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.001
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "ACCOUNT_UPDATE",
+                        "data": {
+                            "updateReason": "ORDER"
+                        },
+                        "required": true,
+                        "timeoutMs": 5000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "close-position",
+                    "description": "Close position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "closePosition": true
+                    },
+                    "continueOnError": true
+                },
+                {
+                    "id": "close-listen-key",
+                    "description": "Close listen key",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "closeListenKey",
+                    "parameters": {
+                        "listenKey": "$listenKey.listenKey"
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "WS-014",
+            "name": "Heartbeat/Keep-Alive",
+            "description": "Verify listen key keep-alive prevents disconnection",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "heartbeat",
+                "keepAlive"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "setup": [
+                {
+                    "id": "get-listen-key",
+                    "description": "Get listen key",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "getListenKey",
+                    "parameters": {},
+                    "required": true,
+                    "storeResultAs": "listenKey"
+                },
+                {
+                    "id": "subscribe",
+                    "description": "Subscribe to user data",
+                    "targetClass": "BinanceWebSocketClient",
+                    "targetMethod": "subscribeUserData",
+                    "parameters": {
+                        "listenKey": "$listenKey.listenKey"
+                    },
+                    "required": true
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "keepAliveListenKey",
+            "input": {
+                "parameters": {
+                    "listenKey": "$listenKey.listenKey"
+                }
+            },
+            "expected": {
+                "success": true
+            },
+            "cleanup": [
+                {
+                    "id": "close-listen-key",
+                    "description": "Close listen key",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "closeListenKey",
+                    "parameters": {
+                        "listenKey": "$listenKey.listenKey"
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "WS-015",
+            "name": "WebSocket Connection Latency",
+            "description": "Measure WebSocket message latency for ticker updates",
+            "category": "events",
+            "tags": [
+                "websocket",
+                "performance",
+                "latency"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "BinanceWebSocketClient",
+            "targetMethod": "measureLatency",
+            "input": {
+                "parameters": {
+                    "symbol": "btcusdt",
+                    "sampleCount": 10
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "maxLatencyMs": 1000
+                }
+            }
+        }
+    ]
+}

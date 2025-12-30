@@ -1,0 +1,87 @@
+name: Test Suite (Full)
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_category:
+        description: 'Test category to run'
+        required: false
+        default: 'ALL'
+        type: choice
+        options:
+          - ALL
+          - ACCOUNT
+          - MARKET_DATA
+          - ORDERS
+          - POSITIONS
+
+jobs:
+  test:
+    name: Run Full Test Suite
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: src/Ark.Alliance.Trading.Providers.Lib.Test/package-lock.json
+      
+      - name: Install library dependencies
+        working-directory: src/Ark.Alliance.Trading.Providers.Lib
+        run: npm ci
+      
+      - name: Build library
+        working-directory: src/Ark.Alliance.Trading.Providers.Lib
+        run: npm run build
+      
+      - name: Install test dependencies
+        working-directory: src/Ark.Alliance.Trading.Providers.Lib.Test
+        run: npm ci
+      
+      - name: Create .env file
+        working-directory: src/Ark.Alliance.Trading.Providers.Lib.Test
+        run: |
+          echo "BINANCE_API_KEY=${{ secrets.BINANCE_TESTNET_API_KEY }}" >> .env
+          echo "BINANCE_API_SECRET=${{ secrets.BINANCE_TESTNET_SECRET }}" >> .env
+          echo "DERIBIT_CLIENT_ID=${{ secrets.DERIBIT_CLIENT_ID }}" >> .env
+          echo "DERIBIT_CLIENT_SECRET=${{ secrets.DERIBIT_CLIENT_SECRET }}" >> .env
+          echo "RUN_LIVE_TESTS=true" >> .env
+          echo "DEBUG=false" >> .env
+      
+      - name: Run tests
+        working-directory: src/Ark.Alliance.Trading.Providers.Lib.Test
+        run: |
+          if [ "${{ github.event.inputs.test_category }}" == "ALL" ] || [ -z "${{ github.event.inputs.test_category }}" ]; then
+            npm run test:execute
+          else
+            npm run test:execute:${{ github.event.inputs.test_category }}
+          fi
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: src/Ark.Alliance.Trading.Providers.Lib.Test/error-report.json
+          retention-days: 30
+      
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '⚠️ Scheduled Test Suite Failed',
+              body: `The scheduled test suite failed on ${new Date().toISOString()}\n\nWorkflow: ${context.workflow}\nRun: ${context.runId}`,
+              labels: ['test-failure', 'automated']
+            })

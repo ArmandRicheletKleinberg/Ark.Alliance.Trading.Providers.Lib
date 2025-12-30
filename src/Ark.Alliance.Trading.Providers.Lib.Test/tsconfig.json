@@ -1,0 +1,62 @@
+{
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "commonjs",
+        "lib": [
+            "ES2020"
+        ],
+        "outDir": "./dist",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "moduleResolution": "node",
+        "types": [
+            "node",
+            "jest"
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "ark-alliance-trading-providers-lib": [
+                "../Ark.Alliance.Trading.Providers.Lib/Src/index.ts"
+            ],
+            "ark-alliance-trading-providers-lib/Binance": [
+                "../Ark.Alliance.Trading.Providers.Lib/Src/Binance/index.ts"
+            ],
+            "ark-alliance-trading-providers-lib/Deribit": [
+                "../Ark.Alliance.Trading.Providers.Lib/Src/Deribit/index.ts"
+            ],
+            "ark-alliance-trading-providers-lib/Common/services": [
+                "../Ark.Alliance.Trading.Providers.Lib/Src/Common/services/index.ts"
+            ],
+            "ark-alliance-trading-providers-lib/Services": [
+                "../Ark.Alliance.Trading.Providers.Lib/Src/Services/index.ts"
+            ],
+            "@engine/*": [
+                "./Src/Engine/*"
+            ],
+            "@binance/*": [
+                "./Src/Binance/*"
+            ],
+            "@scenarios/*": [
+                "./Src/Scenarios/*"
+            ]
+        }
+    },
+    "include": [
+        "Src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ],
+    "ts-node": {
+        "compilerOptions": {
+            "module": "commonjs"
+        }
+    }
+}

@@ -1,0 +1,150 @@
+{
+    "description": "Pre-defined order fixtures for mock testing",
+    "version": "1.0.0",
+    "fixtures": {
+        "marketOrders": [
+            {
+                "id": "market_btc_long",
+                "symbol": "BTCUSDT",
+                "side": "BUY",
+                "type": "MARKET",
+                "quantity": 0.001,
+                "fillPrice": 50000,
+                "description": "Simple BTC market long"
+            },
+            {
+                "id": "market_eth_short",
+                "symbol": "ETHUSDT",
+                "side": "SELL",
+                "type": "MARKET",
+                "quantity": 0.1,
+                "fillPrice": 3000,
+                "description": "Simple ETH market short"
+            }
+        ],
+        "limitOrders": [
+            {
+                "id": "limit_btc_gtc",
+                "symbol": "BTCUSDT",
+                "side": "BUY",
+                "type": "LIMIT",
+                "quantity": 0.002,
+                "price": 49000,
+                "timeInForce": "GTC",
+                "status": "NEW",
+                "description": "Pending BTC limit order GTC"
+            },
+            {
+                "id": "limit_btc_ioc_filled",
+                "symbol": "BTCUSDT",
+                "side": "SELL",
+                "type": "LIMIT",
+                "quantity": 0.001,
+                "price": 51000,
+                "timeInForce": "IOC",
+                "status": "FILLED",
+                "description": "Filled IOC order"
+            },
+            {
+                "id": "limit_btc_gtx",
+                "symbol": "BTCUSDT",
+                "side": "BUY",
+                "type": "LIMIT",
+                "quantity": 0.003,
+                "price": 48500,
+                "timeInForce": "GTX",
+                "status": "NEW",
+                "description": "Post-only GTX order"
+            }
+        ],
+        "conditionalOrders": [
+            {
+                "id": "stop_market_long_close",
+                "symbol": "BTCUSDT",
+                "side": "SELL",
+                "type": "STOP_MARKET",
+                "quantity": 0.001,
+                "stopPrice": 48000,
+                "reduceOnly": true,
+                "description": "Stop loss for long position"
+            },
+            {
+                "id": "take_profit_long_close",
+                "symbol": "BTCUSDT",
+                "side": "SELL",
+                "type": "TAKE_PROFIT_MARKET",
+                "quantity": 0.001,
+                "stopPrice": 52000,
+                "reduceOnly": true,
+                "description": "Take profit for long position"
+            },
+            {
+                "id": "trailing_stop_long",
+                "symbol": "BTCUSDT",
+                "side": "SELL",
+                "type": "TRAILING_STOP_MARKET",
+                "quantity": 0.001,
+                "activationPrice": 51000,
+                "callbackRate": 1.0,
+                "reduceOnly": true,
+                "description": "Trailing stop 1% callback"
+            }
+        ],
+        "partialFills": [
+            {
+                "id": "partial_25_percent",
+                "symbol": "BTCUSDT",
+                "side": "BUY",
+                "type": "LIMIT",
+                "quantity": 0.004,
+                "price": 50000,
+                "executedQty": 0.001,
+                "status": "PARTIALLY_FILLED",
+                "description": "25% filled"
+            },
+            {
+                "id": "partial_75_percent",
+                "symbol": "ETHUSDT",
+                "side": "SELL",
+                "type": "LIMIT",
+                "quantity": 0.4,
+                "price": 3000,
+                "executedQty": 0.3,
+                "status": "PARTIALLY_FILLED",
+                "description": "75% filled"
+            }
+        ],
+        "failedOrders": [
+            {
+                "id": "canceled_order",
+                "symbol": "BTCUSDT",
+                "side": "BUY",
+                "type": "LIMIT",
+                "quantity": 0.001,
+                "price": 45000,
+                "status": "CANCELED",
+                "description": "User canceled"
+            },
+            {
+                "id": "rejected_order",
+                "symbol": "BTCUSDT",
+                "side": "BUY",
+                "type": "MARKET",
+                "quantity": 1000,
+                "status": "REJECTED",
+                "description": "Insufficient margin"
+            },
+            {
+                "id": "expired_order",
+                "symbol": "ETHUSDT",
+                "side": "SELL",
+                "type": "LIMIT",
+                "quantity": 0.1,
+                "price": 3500,
+                "timeInForce": "IOC",
+                "status": "EXPIRED",
+                "description": "IOC not immediately fillable"
+            }
+        ]
+    }
+}

@@ -1,0 +1,631 @@
+{
+    "name": "Algo Order Tests",
+    "description": "Comprehensive tests for algorithmic orders including stop-loss, take-profit, trailing stops, and OCO orders",
+    "provider": "binance",
+    "version": "1.0.0",
+    "scenarios": [
+        {
+            "id": "ALGO-001",
+            "name": "Stop Market Order - Buy",
+            "description": "Place a stop market buy order that triggers when price rises above stop price",
+            "category": "algo-orders",
+            "tags": [
+                "stop-market",
+                "buy",
+                "trigger"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "STOP_MARKET",
+                    "quantity": 0.002,
+                    "stopPrice": "$DYNAMIC_STOP_BUY"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "STOP_MARKET",
+                    "status": "NEW"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ALGO-002",
+            "name": "Stop Market Order - Sell (Stop Loss)",
+            "description": "Place a stop market sell order as a stop loss",
+            "category": "algo-orders",
+            "tags": [
+                "stop-market",
+                "sell",
+                "stop-loss"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "open-position",
+                    "description": "Open long position first",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "storeResultAs": "openPosition"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "STOP_MARKET",
+                    "quantity": 0.002,
+                    "stopPrice": "$DYNAMIC_STOP_SELL",
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "STOP_MARKET",
+                    "status": "NEW"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-orders",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                },
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ALGO-003",
+            "name": "Take Profit Market Order",
+            "description": "Place take profit market order for existing position",
+            "category": "algo-orders",
+            "tags": [
+                "take-profit",
+                "market",
+                "tp"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "open-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "storeResultAs": "openPosition"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "TAKE_PROFIT_MARKET",
+                    "quantity": 0.002,
+                    "stopPrice": "$DYNAMIC_STOP_BUY",
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "TAKE_PROFIT_MARKET",
+                    "status": "NEW"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-orders",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                },
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ALGO-004",
+            "name": "Trailing Stop Order",
+            "description": "Place trailing stop order with callback rate",
+            "category": "algo-orders",
+            "tags": [
+                "trailing-stop",
+                "callback"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "open-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "storeResultAs": "openPosition"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "TRAILING_STOP_MARKET",
+                    "quantity": 0.002,
+                    "callbackRate": 1.0,
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "TRAILING_STOP_MARKET",
+                    "status": "NEW"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-orders",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                },
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ALGO-005",
+            "name": "Multiple Algo Orders - SL and TP",
+            "description": "Place both stop loss and take profit for same position",
+            "category": "algo-orders",
+            "tags": [
+                "multiple",
+                "stop-loss",
+                "take-profit",
+                "bracket"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "open-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "storeResultAs": "openPosition"
+                },
+                {
+                    "id": "place-stop-loss",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "STOP_MARKET",
+                        "quantity": 0.002,
+                        "stopPrice": "$DYNAMIC_STOP_SELL",
+                        "reduceOnly": true
+                    },
+                    "storeResultAs": "stopLoss"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "TAKE_PROFIT_MARKET",
+                    "quantity": 0.002,
+                    "stopPrice": "$DYNAMIC_STOP_BUY",
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "TAKE_PROFIT_MARKET"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-all",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                },
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ALGO-006",
+            "name": "Algo Order Cancel - Single",
+            "description": "Place algo order then cancel individually",
+            "category": "algo-orders",
+            "tags": [
+                "cancel",
+                "single",
+                "workflow"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-stop-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "STOP_MARKET",
+                        "quantity": 0.002,
+                        "stopPrice": "$DYNAMIC_STOP_BUY"
+                    },
+                    "storeResultAs": "stopOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "cancelOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "orderId": "$stopOrder.data.orderId"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "CANCELED"
+                }
+            }
+        },
+        {
+            "id": "ALGO-007",
+            "name": "Algo Order Batch Cancel",
+            "description": "Place multiple algo orders then cancel all at once",
+            "category": "algo-orders",
+            "tags": [
+                "cancel",
+                "batch",
+                "multiple"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "stop-order-1",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "STOP_MARKET",
+                        "quantity": 0.002,
+                        "stopPrice": "$DYNAMIC_STOP_BUY"
+                    },
+                    "storeResultAs": "order1"
+                },
+                {
+                    "id": "stop-order-2",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "STOP_MARKET",
+                        "quantity": 0.002,
+                        "stopPrice": "$DYNAMIC_STOP_SELL"
+                    },
+                    "storeResultAs": "order2"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "cancelAllOpenOrders",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true
+            }
+        },
+        {
+            "id": "ALGO-008",
+            "name": "Algo Order Event Validation",
+            "description": "Place algo order and validate orderUpdate event",
+            "category": "algo-orders",
+            "tags": [
+                "events",
+                "websocket",
+                "order-update"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "STOP_MARKET",
+                    "quantity": 0.002,
+                    "stopPrice": "$DYNAMIC_STOP_BUY"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "orderUpdate",
+                        "timeout": 5000,
+                        "expectedData": {
+                            "symbol": "BTCUSDT",
+                            "orderType": "STOP_MARKET"
+                        }
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-orders",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ALGO-009",
+            "name": "Stop Order Status Check",
+            "description": "Place stop order and query its status",
+            "category": "algo-orders",
+            "tags": [
+                "status",
+                "query",
+                "workflow"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-stop",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "STOP_MARKET",
+                        "quantity": 0.002,
+                        "stopPrice": "$DYNAMIC_STOP_BUY"
+                    },
+                    "storeResultAs": "stopOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "orderId": "$stopOrder.data.orderId"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "NEW",
+                    "type": "STOP_MARKET"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ALGO-010",
+            "name": "Multi-Symbol Algo Orders",
+            "description": "Place algo orders on multiple symbols simultaneously",
+            "category": "algo-orders",
+            "tags": [
+                "multi-symbol",
+                "batch"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "btc-stop",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "STOP_MARKET",
+                        "quantity": 0.002,
+                        "stopPrice": "$DYNAMIC_STOP_BUY"
+                    },
+                    "storeResultAs": "btcOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "ETHUSDT",
+                    "side": "BUY",
+                    "type": "STOP_MARKET",
+                    "quantity": 0.01,
+                    "stopPrice": "$DYNAMIC_STOP_BUY"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "ETHUSDT",
+                    "type": "STOP_MARKET"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-btc",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                },
+                {
+                    "id": "cancel-eth",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "ETHUSDT"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,828 @@
+{
+    "version": "1.0.0",
+    "description": "Binance Mapper Abstraction Layer Tests - Tests mapping of Binance types to Common IOrder/IPosition/IMarketData interfaces",
+    "scenarios": [
+        {
+            "id": "MAP-ORD-001",
+            "name": "Map Regular Order - LIMIT BUY NEW",
+            "description": "Map a Binance LIMIT BUY order in NEW status to common IOrder interface",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "order",
+                "limit",
+                "buy",
+                "new"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapBinanceOrderToIOrder",
+            "input": {
+                "parameters": {
+                    "mockOrder": {
+                        "orderId": 123456789,
+                        "clientOrderId": "test-limit-buy-001",
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "orderType": "LIMIT",
+                        "originalOrderType": "LIMIT",
+                        "timeInForce": "GTC",
+                        "positionSide": "BOTH",
+                        "originalQuantity": 0.002,
+                        "filledQuantity": 0,
+                        "lastFilledQuantity": 0,
+                        "originalPrice": 50000,
+                        "averagePrice": 0,
+                        "lastFilledPrice": 0,
+                        "stopPrice": 0,
+                        "executionType": "NEW",
+                        "orderStatus": "NEW",
+                        "tradeId": 0,
+                        "isMaker": false,
+                        "isReduceOnly": false,
+                        "isCloseAll": false,
+                        "commission": 0,
+                        "commissionAsset": "USDT",
+                        "realizedProfit": 0,
+                        "bidsNotional": 100,
+                        "askNotional": 0,
+                        "workingType": "CONTRACT_PRICE",
+                        "priceProtection": false,
+                        "eventTime": 1735516800000,
+                        "transactionTime": 1735516800000,
+                        "tradeTime": 0,
+                        "expiryReason": 0,
+                        "isLiquidation": false,
+                        "isADL": false
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "orderId": "123456789",
+                    "clientOrderId": "test-limit-buy-001",
+                    "instrument": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": "0.002",
+                    "filledQuantity": "0",
+                    "price": "50000",
+                    "status": "NEW",
+                    "timeInForce": "GTC",
+                    "reduceOnly": false,
+                    "postOnly": false
+                }
+            },
+            "validation": {
+                "strictMatch": false,
+                "ignoreFields": [
+                    "providerData",
+                    "createdAt",
+                    "updatedAt"
+                ]
+            }
+        },
+        {
+            "id": "MAP-ORD-002",
+            "name": "Map GTX Post-Only Order",
+            "description": "Map a Binance GTX order to IOrder with postOnly=true and timeInForce=GTC",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "order",
+                "gtx",
+                "post-only"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapBinanceOrderToIOrder",
+            "input": {
+                "parameters": {
+                    "mockOrder": {
+                        "orderId": 123456792,
+                        "clientOrderId": "test-gtx-order-001",
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "orderType": "LIMIT",
+                        "originalOrderType": "LIMIT",
+                        "timeInForce": "GTX",
+                        "positionSide": "BOTH",
+                        "originalQuantity": 0.002,
+                        "filledQuantity": 0,
+                        "lastFilledQuantity": 0,
+                        "originalPrice": 94000,
+                        "averagePrice": 0,
+                        "lastFilledPrice": 0,
+                        "stopPrice": 0,
+                        "executionType": "NEW",
+                        "orderStatus": "NEW",
+                        "tradeId": 0,
+                        "isMaker": true,
+                        "isReduceOnly": false,
+                        "isCloseAll": false,
+                        "commission": 0,
+                        "commissionAsset": "USDT",
+                        "realizedProfit": 0,
+                        "bidsNotional": 188,
+                        "askNotional": 0,
+                        "workingType": "CONTRACT_PRICE",
+                        "priceProtection": false,
+                        "eventTime": 1735516803000,
+                        "transactionTime": 1735516803000,
+                        "tradeTime": 0,
+                        "expiryReason": 0,
+                        "isLiquidation": false,
+                        "isADL": false
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "orderId": "123456792",
+                    "timeInForce": "GTC",
+                    "postOnly": true
+                }
+            }
+        },
+        {
+            "id": "MAP-ORD-003",
+            "name": "Map FILLED Order",
+            "description": "Map a Binance filled order with realized profit and commission",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "order",
+                "filled",
+                "trade"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapBinanceOrderToIOrder",
+            "input": {
+                "parameters": {
+                    "mockOrder": {
+                        "orderId": 123456790,
+                        "clientOrderId": "test-limit-sell-001",
+                        "symbol": "ETHUSDT",
+                        "side": "SELL",
+                        "orderType": "LIMIT",
+                        "originalOrderType": "LIMIT",
+                        "timeInForce": "GTC",
+                        "positionSide": "BOTH",
+                        "originalQuantity": 0.5,
+                        "filledQuantity": 0.5,
+                        "lastFilledQuantity": 0.5,
+                        "originalPrice": 2500,
+                        "averagePrice": 2500.5,
+                        "lastFilledPrice": 2500.5,
+                        "stopPrice": 0,
+                        "executionType": "TRADE",
+                        "orderStatus": "FILLED",
+                        "tradeId": 987654321,
+                        "isMaker": true,
+                        "isReduceOnly": false,
+                        "isCloseAll": false,
+                        "commission": 0.25,
+                        "commissionAsset": "USDT",
+                        "realizedProfit": 25.5,
+                        "bidsNotional": 0,
+                        "askNotional": 1250.25,
+                        "workingType": "CONTRACT_PRICE",
+                        "priceProtection": false,
+                        "eventTime": 1735516801000,
+                        "transactionTime": 1735516801000,
+                        "tradeTime": 1735516801000,
+                        "expiryReason": 0,
+                        "isLiquidation": false,
+                        "isADL": false
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "orderId": "123456790",
+                    "instrument": "ETHUSDT",
+                    "side": "SELL",
+                    "filledQuantity": "0.5",
+                    "averagePrice": "2500.5",
+                    "status": "FILLED"
+                }
+            }
+        },
+        {
+            "id": "MAP-ALGO-001",
+            "name": "Map Algo Order - STOP_MARKET NEW",
+            "description": "Map a Binance AlgoOrderUpdate (STOP_MARKET) in NEW status to IOrder with ALGO: prefix",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "algo",
+                "stop-market",
+                "conditional"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapBinanceAlgoOrderToIOrder",
+            "input": {
+                "parameters": {
+                    "mockAlgoOrder": {
+                        "algoId": 789012345,
+                        "clientAlgoId": "algo-stop-market-001",
+                        "symbol": "BTCUSDT",
+                        "orderId": null,
+                        "algoType": "CONDITIONAL",
+                        "side": "SELL",
+                        "orderType": "STOP_MARKET",
+                        "timeInForce": "GTC",
+                        "positionSide": "BOTH",
+                        "workingType": "CONTRACT_PRICE",
+                        "quantity": 0.002,
+                        "filledQuantity": 0,
+                        "lastFilledQuantity": 0,
+                        "price": 0,
+                        "stopPrice": 90000,
+                        "averagePrice": 0,
+                        "lastFilledPrice": 0,
+                        "status": "NEW",
+                        "isReduceOnly": true,
+                        "isClosePosition": false,
+                        "priceProtection": true,
+                        "commission": 0,
+                        "commissionAsset": "USDT",
+                        "realizedProfit": 0,
+                        "eventTime": 1735516806000,
+                        "transactionTime": 1735516806000
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "orderId": "ALGO:789012345",
+                    "clientOrderId": "algo-stop-market-001",
+                    "instrument": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "STOP_MARKET",
+                    "stopPrice": "90000",
+                    "status": "PENDING",
+                    "reduceOnly": true
+                }
+            }
+        },
+        {
+            "id": "MAP-ALGO-002",
+            "name": "Map Algo Order - FINISHED Status",
+            "description": "Map a Binance AlgoOrderUpdate with FINISHED status (Dec 2025 API) to FILLED",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "algo",
+                "finished",
+                "2025-api"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapBinanceAlgoOrderToIOrder",
+            "input": {
+                "parameters": {
+                    "mockAlgoOrder": {
+                        "algoId": 789012348,
+                        "clientAlgoId": "algo-finished-001",
+                        "symbol": "BTCUSDT",
+                        "orderId": 555666778,
+                        "algoType": "CONDITIONAL",
+                        "side": "SELL",
+                        "orderType": "STOP_MARKET",
+                        "actualOrderType": "MARKET",
+                        "timeInForce": "GTC",
+                        "positionSide": "BOTH",
+                        "workingType": "CONTRACT_PRICE",
+                        "quantity": 0.002,
+                        "filledQuantity": 0.002,
+                        "lastFilledQuantity": 0.002,
+                        "matchingEngineQuantity": 0.002,
+                        "price": 0,
+                        "stopPrice": 92000,
+                        "averagePrice": 91950,
+                        "lastFilledPrice": 91950,
+                        "status": "FINISHED",
+                        "isReduceOnly": true,
+                        "isClosePosition": false,
+                        "priceProtection": true,
+                        "commission": 0.092,
+                        "commissionAsset": "USDT",
+                        "realizedProfit": -15.5,
+                        "eventTime": 1735516809000,
+                        "transactionTime": 1735516809000
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "orderId": "ALGO:789012348",
+                    "status": "FILLED",
+                    "filledQuantity": "0.002",
+                    "averagePrice": "91950"
+                }
+            }
+        },
+        {
+            "id": "MAP-ALGO-003",
+            "name": "Map Algo Order - REJECTED Status",
+            "description": "Map a Binance AlgoOrderUpdate with REJECTED status to IOrder REJECTED",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "algo",
+                "rejected",
+                "error"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapBinanceAlgoOrderToIOrder",
+            "input": {
+                "parameters": {
+                    "mockAlgoOrder": {
+                        "algoId": 789012349,
+                        "clientAlgoId": "algo-rejected-001",
+                        "symbol": "BTCUSDT",
+                        "algoType": "CONDITIONAL",
+                        "side": "SELL",
+                        "orderType": "STOP_MARKET",
+                        "timeInForce": "GTC",
+                        "positionSide": "BOTH",
+                        "workingType": "CONTRACT_PRICE",
+                        "quantity": 0.002,
+                        "filledQuantity": 0,
+                        "price": 0,
+                        "stopPrice": 92000,
+                        "averagePrice": 0,
+                        "status": "REJECTED",
+                        "isReduceOnly": true,
+                        "isClosePosition": false,
+                        "priceProtection": true,
+                        "eventTime": 1735516810000,
+                        "transactionTime": 1735516810000
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "orderId": "ALGO:789012349",
+                    "status": "REJECTED"
+                }
+            }
+        },
+        {
+            "id": "MAP-ALGO-004",
+            "name": "Map Algo Order - TRAILING_STOP with Activation Price",
+            "description": "Map a Binance TRAILING_STOP_MARKET AlgoOrderUpdate with activation price and callback rate",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "algo",
+                "trailing-stop",
+                "activation"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapBinanceAlgoOrderToIOrder",
+            "input": {
+                "parameters": {
+                    "mockAlgoOrder": {
+                        "algoId": 789012350,
+                        "clientAlgoId": "algo-trailing-001",
+                        "symbol": "BTCUSDT",
+                        "algoType": "CONDITIONAL",
+                        "side": "SELL",
+                        "orderType": "TRAILING_STOP_MARKET",
+                        "timeInForce": "GTC",
+                        "positionSide": "BOTH",
+                        "workingType": "CONTRACT_PRICE",
+                        "quantity": 0.002,
+                        "filledQuantity": 0,
+                        "price": 0,
+                        "stopPrice": 0,
+                        "averagePrice": 0,
+                        "activationPrice": 95000,
+                        "callbackRate": 1.5,
+                        "status": "NEW",
+                        "isReduceOnly": true,
+                        "isClosePosition": false,
+                        "priceProtection": true,
+                        "eventTime": 1735516811000,
+                        "transactionTime": 1735516811000
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "orderId": "ALGO:789012350",
+                    "type": "TRAILING_STOP_MARKET",
+                    "status": "PENDING"
+                }
+            }
+        },
+        {
+            "id": "MAP-UNIFIED-001",
+            "name": "Unified Mapper - Regular Order Routing",
+            "description": "Test mapAnyBinanceOrderToIOrder correctly routes regular orders",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "unified",
+                "routing",
+                "regular"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapAnyBinanceOrderToIOrder",
+            "input": {
+                "parameters": {
+                    "mockOrder": {
+                        "orderId": 999888777,
+                        "clientOrderId": "unified-test-001",
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "orderType": "MARKET",
+                        "originalOrderType": "MARKET",
+                        "timeInForce": "GTC",
+                        "positionSide": "BOTH",
+                        "originalQuantity": 0.001,
+                        "filledQuantity": 0.001,
+                        "lastFilledQuantity": 0.001,
+                        "originalPrice": 0,
+                        "averagePrice": 95000,
+                        "lastFilledPrice": 95000,
+                        "stopPrice": 0,
+                        "executionType": "TRADE",
+                        "orderStatus": "FILLED",
+                        "tradeId": 111222333,
+                        "isMaker": false,
+                        "isReduceOnly": false,
+                        "isCloseAll": false,
+                        "commission": 0.095,
+                        "commissionAsset": "USDT",
+                        "realizedProfit": 0,
+                        "bidsNotional": 95,
+                        "askNotional": 0,
+                        "workingType": "CONTRACT_PRICE",
+                        "priceProtection": false,
+                        "eventTime": 1735516900000,
+                        "transactionTime": 1735516900000,
+                        "tradeTime": 1735516900000,
+                        "expiryReason": 0,
+                        "isLiquidation": false,
+                        "isADL": false
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "orderId": "999888777"
+                },
+                "validation": {
+                    "orderIdStartsWith": "ALGO:",
+                    "shouldNotMatch": true
+                }
+            }
+        },
+        {
+            "id": "MAP-UNIFIED-002",
+            "name": "Unified Mapper - Algo Order Routing",
+            "description": "Test mapAnyBinanceOrderToIOrder correctly routes algo orders with ALGO: prefix",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "unified",
+                "routing",
+                "algo"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testMapAnyBinanceOrderToIOrder",
+            "input": {
+                "parameters": {
+                    "mockOrder": {
+                        "algoId": 444555666,
+                        "clientAlgoId": "unified-algo-001",
+                        "algoType": "CONDITIONAL",
+                        "symbol": "ETHUSDT",
+                        "side": "BUY",
+                        "orderType": "STOP_MARKET",
+                        "timeInForce": "GTC",
+                        "positionSide": "BOTH",
+                        "workingType": "MARK_PRICE",
+                        "quantity": 1.0,
+                        "filledQuantity": 0,
+                        "price": 0,
+                        "stopPrice": 2500,
+                        "averagePrice": 0,
+                        "status": "NEW",
+                        "isReduceOnly": false,
+                        "isClosePosition": false,
+                        "priceProtection": false,
+                        "eventTime": 1735516901000,
+                        "transactionTime": 1735516901000
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "orderId": "ALGO:444555666"
+                }
+            }
+        },
+        {
+            "id": "MAP-POS-001",
+            "name": "Map Position - Long Active",
+            "description": "Map a Binance long position to common IPosition interface",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "position",
+                "long",
+                "active"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "PositionMapperTests",
+            "targetMethod": "testMapBinancePositionRiskToIPosition",
+            "input": {
+                "parameters": {
+                    "mockPosition": {
+                        "symbol": "BTCUSDT",
+                        "positionAmt": "0.01",
+                        "entryPrice": "94500",
+                        "markPrice": "95200",
+                        "unRealizedProfit": "7.0",
+                        "liquidationPrice": "75000",
+                        "leverage": "10",
+                        "maxNotionalValue": "50000000",
+                        "marginType": "cross",
+                        "isolatedMargin": "0",
+                        "positionSide": "BOTH",
+                        "notional": "952",
+                        "isolatedWallet": "0",
+                        "updateTime": 1735516800000
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "instrument": "BTCUSDT",
+                    "side": "LONG",
+                    "size": "0.01",
+                    "entryPrice": "94500",
+                    "markPrice": "95200",
+                    "leverage": 10,
+                    "marginType": "CROSS"
+                }
+            }
+        },
+        {
+            "id": "MAP-POS-002",
+            "name": "Map Position - Short Active Isolated",
+            "description": "Map a Binance short position with isolated margin to IPosition",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "position",
+                "short",
+                "isolated"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "PositionMapperTests",
+            "targetMethod": "testMapBinancePositionRiskToIPosition",
+            "input": {
+                "parameters": {
+                    "mockPosition": {
+                        "symbol": "ETHUSDT",
+                        "positionAmt": "-1.5",
+                        "entryPrice": "2450",
+                        "markPrice": "2420",
+                        "unRealizedProfit": "45.0",
+                        "liquidationPrice": "3200",
+                        "leverage": "20",
+                        "maxNotionalValue": "10000000",
+                        "marginType": "isolated",
+                        "isolatedMargin": "200",
+                        "positionSide": "BOTH",
+                        "notional": "-3630",
+                        "isolatedWallet": "200",
+                        "updateTime": 1735516801000
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "instrument": "ETHUSDT",
+                    "side": "SHORT",
+                    "size": "1.5",
+                    "marginType": "ISOLATED"
+                }
+            }
+        },
+        {
+            "id": "MAP-POS-003",
+            "name": "Map Position - No Position (Zero Amount)",
+            "description": "Map a Binance position with zero amount (no open position)",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "position",
+                "empty",
+                "filter"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "PositionMapperTests",
+            "targetMethod": "testFilterActivePositions",
+            "input": {
+                "parameters": {
+                    "mockPositions": [
+                        {
+                            "symbol": "BTCUSDT",
+                            "positionAmt": "0.01",
+                            "entryPrice": "94500",
+                            "markPrice": "95200",
+                            "marginType": "cross",
+                            "positionSide": "BOTH"
+                        },
+                        {
+                            "symbol": "SOLUSDT",
+                            "positionAmt": "0",
+                            "entryPrice": "0",
+                            "markPrice": "200",
+                            "marginType": "cross",
+                            "positionSide": "BOTH"
+                        },
+                        {
+                            "symbol": "ETHUSDT",
+                            "positionAmt": "-1.5",
+                            "entryPrice": "2450",
+                            "markPrice": "2420",
+                            "marginType": "isolated",
+                            "positionSide": "BOTH"
+                        }
+                    ]
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "activeCount": 2,
+                    "filteredSymbols": [
+                        "BTCUSDT",
+                        "ETHUSDT"
+                    ]
+                }
+            }
+        },
+        {
+            "id": "MAP-TYPEGUARD-001",
+            "name": "Type Guard - isAlgoOrder",
+            "description": "Test isAlgoOrder type guard correctly identifies algo vs regular orders",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "type-guard",
+                "algo"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testIsAlgoOrder",
+            "input": {
+                "parameters": {
+                    "algoOrder": {
+                        "algoId": 123,
+                        "algoType": "CONDITIONAL",
+                        "symbol": "BTCUSDT"
+                    },
+                    "regularOrder": {
+                        "orderId": 456,
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "algoOrderResult": true,
+                    "regularOrderResult": false
+                }
+            }
+        },
+        {
+            "id": "MAP-UTIL-001",
+            "name": "Utility - parseOrderId",
+            "description": "Test parseOrderId correctly extracts ID and algo flag from mapped order IDs",
+            "category": "mappers",
+            "tags": [
+                "mapper",
+                "utility",
+                "parse"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": false
+            },
+            "targetClass": "OrderMapperTests",
+            "targetMethod": "testParseOrderId",
+            "input": {
+                "parameters": {
+                    "algoOrderId": "ALGO:789012345",
+                    "regularOrderId": "123456789"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "algoResult": {
+                        "id": "789012345",
+                        "isAlgo": true
+                    },
+                    "regularResult": {
+                        "id": "123456789",
+                        "isAlgo": false
+                    }
+                }
+            }
+        }
+    ]
+}

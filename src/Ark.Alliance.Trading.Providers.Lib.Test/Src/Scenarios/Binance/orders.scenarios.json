@@ -1,0 +1,634 @@
+{
+    "version": "1.0.0",
+    "description": "Binance Futures Order Test Scenarios - Covers all order types, time-in-force modes, and sides",
+    "scenarios": [
+        {
+            "id": "ORD-001",
+            "name": "LIMIT Long GTC Order",
+            "description": "Place a standard limit buy order with Good Till Cancel time-in-force",
+            "category": "orders",
+            "tags": [
+                "limit",
+                "long",
+                "gtc",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.002,
+                    "price": "50000",
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "NEW",
+                    "type": "LIMIT",
+                    "side": "BUY",
+                    "timeInForce": "GTC"
+                }
+            },
+            "validation": {
+                "strictMatch": false,
+                "ignoreFields": [
+                    "orderId",
+                    "clientOrderId",
+                    "updateTime"
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ORD-002",
+            "name": "LIMIT Short IOC Order",
+            "description": "Place a limit sell order with Immediate Or Cancel time-in-force",
+            "category": "orders",
+            "tags": [
+                "limit",
+                "short",
+                "ioc"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "ETHUSDT",
+                    "side": "SELL",
+                    "type": "LIMIT",
+                    "quantity": 0.05,
+                    "price": "5000",
+                    "timeInForce": "IOC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "LIMIT",
+                    "side": "SELL",
+                    "timeInForce": "IOC"
+                }
+            }
+        },
+        {
+            "id": "ORD-003",
+            "name": "LIMIT Post-Only GTX Order",
+            "description": "Place a post-only maker order using GTX time-in-force",
+            "category": "orders",
+            "tags": [
+                "limit",
+                "gtx",
+                "post-only",
+                "maker"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.002,
+                    "price": "50000",
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "LIMIT",
+                    "timeInForce": "GTX"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ORD-004",
+            "name": "MARKET Long Order",
+            "description": "Place a market buy order for immediate execution",
+            "category": "orders",
+            "tags": [
+                "market",
+                "long",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.002
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "MARKET",
+                    "side": "BUY"
+                }
+            }
+        },
+        {
+            "id": "ORD-005",
+            "name": "MARKET Short Order",
+            "description": "Place a market sell order for immediate execution",
+            "category": "orders",
+            "tags": [
+                "market",
+                "short",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "ETHUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "quantity": 0.05
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "MARKET",
+                    "side": "SELL"
+                }
+            }
+        },
+        {
+            "id": "ORD-006",
+            "name": "STOP_MARKET Long Order",
+            "description": "Place a stop market order to trigger buy at specified price",
+            "category": "orders",
+            "tags": [
+                "stop",
+                "market",
+                "long",
+                "conditional"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "STOP_MARKET",
+                    "quantity": 0.002,
+                    "stopPrice": "100000"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "STOP_MARKET",
+                    "side": "BUY",
+                    "status": "NEW"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ORD-007",
+            "name": "STOP_MARKET Short (Stop Loss)",
+            "description": "Place a stop loss market order - requires position first",
+            "category": "orders",
+            "tags": [
+                "stop",
+                "market",
+                "short",
+                "stop-loss"
+            ],
+            "enabled": false,
+            "reason": "Requires existing position for reduceOnly",
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "STOP_MARKET",
+                    "quantity": 0.002,
+                    "stopPrice": "80000",
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "STOP_MARKET",
+                    "reduceOnly": true
+                }
+            }
+        },
+        {
+            "id": "ORD-008",
+            "name": "TAKE_PROFIT_MARKET Order",
+            "description": "Place a take profit market order - requires position first",
+            "category": "orders",
+            "tags": [
+                "take-profit",
+                "market",
+                "conditional"
+            ],
+            "enabled": false,
+            "reason": "Requires existing position for reduceOnly",
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "TAKE_PROFIT_MARKET",
+                    "quantity": 0.002,
+                    "stopPrice": "100000",
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "TAKE_PROFIT_MARKET"
+                }
+            }
+        },
+        {
+            "id": "ORD-009",
+            "name": "TRAILING_STOP_MARKET Order",
+            "description": "Place a trailing stop order with callback rate",
+            "category": "orders",
+            "tags": [
+                "trailing",
+                "stop",
+                "market",
+                "advanced"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "TRAILING_STOP_MARKET",
+                    "quantity": 0.002,
+                    "callbackRate": 1.0
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "TRAILING_STOP_MARKET"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ORD-010",
+            "name": "FOK Order - Fill or Kill",
+            "description": "Place a Fill or Kill order",
+            "category": "orders",
+            "tags": [
+                "limit",
+                "fok",
+                "fill-or-kill"
+            ],
+            "enabled": false,
+            "reason": "FOK requires dynamic price resolution - pending fix",
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.002,
+                    "price": "$DYNAMIC_MARKETABLE_BUY",
+                    "timeInForce": "FOK"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "timeInForce": "FOK"
+                }
+            }
+        },
+        {
+            "id": "ORD-011",
+            "name": "GTD Order - Good Till Date",
+            "description": "Place a Good Till Date order with expiry time",
+            "category": "orders",
+            "tags": [
+                "limit",
+                "gtd",
+                "expiry"
+            ],
+            "enabled": false,
+            "reason": "GTD requires dynamic timestamp resolution - pending fix",
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.002,
+                    "price": "50000",
+                    "timeInForce": "GTD",
+                    "goodTillDate": "$FUTURE_TIMESTAMP"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "timeInForce": "GTD"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ORD-012",
+            "name": "Reduce Only Order",
+            "description": "Place a reduce-only order - requires position first",
+            "category": "orders",
+            "tags": [
+                "reduce-only",
+                "position-management"
+            ],
+            "enabled": false,
+            "reason": "Requires existing position",
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "quantity": 0.002,
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "reduceOnly": true
+                }
+            }
+        },
+        {
+            "id": "ORD-013",
+            "name": "Close Position Order (BOTH)",
+            "description": "Place a close position order - requires position first",
+            "category": "orders",
+            "tags": [
+                "close-position",
+                "position-management"
+            ],
+            "enabled": false,
+            "reason": "Requires existing position",
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "closePosition": true,
+                    "positionSide": "BOTH"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "closePosition": true
+                }
+            }
+        },
+        {
+            "id": "ORD-017",
+            "name": "Cancel All Open Orders",
+            "description": "Cancel all open orders for a symbol",
+            "category": "orders",
+            "tags": [
+                "cancel",
+                "bulk",
+                "order-management"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "cancelAllOpenOrders",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true
+            }
+        },
+        {
+            "id": "ORD-018",
+            "name": "Get Open Orders",
+            "description": "Query all open orders for a symbol",
+            "category": "orders",
+            "tags": [
+                "query",
+                "open-orders"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getOpenOrders",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array"
+            }
+        },
+        {
+            "id": "ORD-020",
+            "name": "STOP Limit Order",
+            "description": "Place a stop limit order (conditional with limit price)",
+            "category": "orders",
+            "tags": [
+                "stop",
+                "limit",
+                "conditional",
+                "advanced"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "STOP",
+                    "quantity": 0.002,
+                    "price": "100000",
+                    "stopPrice": "99500",
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "STOP"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        }
+    ]
+}

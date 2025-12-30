@@ -1,0 +1,500 @@
+{
+    "version": "1.0.0",
+    "description": "Binance API Error Handling Test Scenarios",
+    "scenarios": [
+        {
+            "id": "ERR-001",
+            "name": "Invalid Timestamp (Future)",
+            "description": "Test error handling when timestamp is too far in the future",
+            "category": "errors",
+            "tags": [
+                "timestamp",
+                "-1021",
+                "signature"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.001,
+                    "timestamp": 9999999999999
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-1021",
+                "errorMessage": "Timestamp"
+            }
+        },
+        {
+            "id": "ERR-002",
+            "name": "Invalid Signature",
+            "description": "Test error handling with malformed signature",
+            "category": "errors",
+            "tags": [
+                "signature",
+                "-1022",
+                "auth"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.001,
+                    "_forceInvalidSignature": true
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-1022",
+                "errorMessage": "Signature"
+            }
+        },
+        {
+            "id": "ERR-003",
+            "name": "Invalid Symbol",
+            "description": "Test error handling with non-existent symbol",
+            "category": "errors",
+            "tags": [
+                "symbol",
+                "-1121",
+                "validation"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "INVALIDUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.001
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-1121",
+                "errorMessage": "Invalid symbol"
+            }
+        },
+        {
+            "id": "ERR-004",
+            "name": "Missing Mandatory Parameter",
+            "description": "Test error handling when required parameter is missing",
+            "category": "errors",
+            "tags": [
+                "validation",
+                "-1102",
+                "param"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT"
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-1102",
+                "errorMessage": "Mandatory parameter"
+            }
+        },
+        {
+            "id": "ERR-005",
+            "name": "Precision Over Maximum",
+            "description": "Test error handling with excessive decimal precision",
+            "category": "errors",
+            "tags": [
+                "precision",
+                "-1111",
+                "validation"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.00000001,
+                    "price": 42000.123456789,
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-1111",
+                "errorMessage": "Precision"
+            }
+        },
+        {
+            "id": "ERR-006",
+            "name": "Quantity Too Small",
+            "description": "Test error handling with quantity below minimum",
+            "category": "errors",
+            "tags": [
+                "quantity",
+                "-4003",
+                "filter"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.0000001
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-4003"
+            }
+        },
+        {
+            "id": "ERR-007",
+            "name": "Price Exceeds Limit",
+            "description": "Test error handling when price is outside allowed range",
+            "category": "errors",
+            "tags": [
+                "price",
+                "-4014",
+                "filter"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.001,
+                    "price": 1000000,
+                    "timeInForce": "GTC"
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-4014"
+            }
+        },
+        {
+            "id": "ERR-008",
+            "name": "Insufficient Margin",
+            "description": "Test error handling with insufficient account balance",
+            "category": "errors",
+            "tags": [
+                "margin",
+                "-2019",
+                "balance"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 1000
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-2019",
+                "errorMessage": "[Mm]argin"
+            }
+        },
+        {
+            "id": "ERR-009",
+            "name": "GTX Would Take Liquidity",
+            "description": "Test error when post-only order would cross the spread",
+            "category": "errors",
+            "tags": [
+                "gtx",
+                "-5022",
+                "post-only"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.001,
+                    "price": 100000,
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-5022"
+            }
+        },
+        {
+            "id": "ERR-010",
+            "name": "Reduce Only Reject",
+            "description": "Test error when reduce-only order would increase position",
+            "category": "errors",
+            "tags": [
+                "reduce-only",
+                "-4061",
+                "position"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.001,
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-4061"
+            }
+        },
+        {
+            "id": "ERR-011",
+            "name": "Invalid Side Parameter",
+            "description": "Test error handling with invalid order side",
+            "category": "errors",
+            "tags": [
+                "side",
+                "-1117",
+                "validation"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "INVALID",
+                    "type": "MARKET",
+                    "quantity": 0.001
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-1117",
+                "errorMessage": "[Ii]nvalid side"
+            }
+        },
+        {
+            "id": "ERR-012",
+            "name": "Order Not Found (Cancel)",
+            "description": "Test error when canceling non-existent order",
+            "category": "errors",
+            "tags": [
+                "cancel",
+                "-2011",
+                "order"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "cancelOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "orderId": 999999999999
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-2011"
+            }
+        },
+        {
+            "id": "ERR-013",
+            "name": "Leverage Change With Position",
+            "description": "Test error when changing leverage with open position (may fail)",
+            "category": "errors",
+            "tags": [
+                "leverage",
+                "position",
+                "config"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "setLeverage",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "leverage": 125
+                }
+            },
+            "expected": {
+                "success": true
+            },
+            "validation": {
+                "strictMatch": false
+            }
+        },
+        {
+            "id": "ERR-014",
+            "name": "Margin Type Change With Position",
+            "description": "Test error when changing margin type with open position",
+            "category": "errors",
+            "tags": [
+                "margin",
+                "position",
+                "config"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "setMarginType",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "marginType": "ISOLATED"
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-4048"
+            }
+        },
+        {
+            "id": "ERR-015",
+            "name": "Duplicate Client Order ID",
+            "description": "Test error when using duplicate newClientOrderId",
+            "category": "errors",
+            "tags": [
+                "clientOrderId",
+                "-1112",
+                "duplicate"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "binance-testnet"
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.001,
+                    "price": 35000,
+                    "timeInForce": "GTC",
+                    "newClientOrderId": "duplicate_test_id_123"
+                }
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "-1112"
+            }
+        }
+    ]
+}

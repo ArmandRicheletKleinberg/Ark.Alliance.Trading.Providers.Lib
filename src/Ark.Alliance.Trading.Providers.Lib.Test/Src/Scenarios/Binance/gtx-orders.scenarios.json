@@ -1,0 +1,741 @@
+{
+    "name": "GTX (Post-Only) Order Tests",
+    "description": "Comprehensive tests for Post-Only (maker-only) orders with retry logic and price adaptation",
+    "provider": "binance",
+    "version": "1.0.0",
+    "scenarios": [
+        {
+            "id": "GTX-001",
+            "name": "GTX Buy Order - Basic Post-Only",
+            "description": "Place a basic GTX (Post-Only) buy order that rests on the order book. Price is set dynamically below current bid to ensure it doesn't cross the spread.",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "post-only",
+                "maker",
+                "buy",
+                "long"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.002,
+                    "price": "$DYNAMIC_GTX_BUY",
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "timeInForce": "GTX",
+                    "status": "NEW"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "GTX-002",
+            "name": "GTX Sell Order - Basic Post-Only",
+            "description": "Place a basic GTX (Post-Only) sell order that rests on the order book. Price is set dynamically above current ask to ensure it doesn't cross the spread.",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "post-only",
+                "maker",
+                "sell",
+                "short"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "LIMIT",
+                    "quantity": 0.002,
+                    "price": "$DYNAMIC_GTX_SELL",
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "timeInForce": "GTX",
+                    "status": "NEW"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "GTX-003",
+            "name": "GTX Buy Order - ETH Symbol",
+            "description": "Test GTX order on ETHUSDT symbol to verify cross-symbol compatibility",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "post-only",
+                "buy",
+                "eth"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "ETHUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.01,
+                    "price": "$DYNAMIC_GTX_BUY",
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "timeInForce": "GTX"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "ETHUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "GTX-004",
+            "name": "GTX Sell Order - ETH Symbol",
+            "description": "Test GTX sell order on ETHUSDT symbol",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "post-only",
+                "sell",
+                "eth"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "ETHUSDT",
+                    "side": "SELL",
+                    "type": "LIMIT",
+                    "quantity": 0.01,
+                    "price": "$DYNAMIC_GTX_SELL",
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "timeInForce": "GTX"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "ETHUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "GTX-005",
+            "name": "GTX Order Rejection - Would Cross Spread (Expected Failure)",
+            "description": "Verify GTX order is rejected when price would immediately cross the spread. Uses marketable price intentionally.",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "rejection",
+                "negative-test"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.002,
+                    "price": "$DYNAMIC_MARKETABLE_BUY",
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": false,
+                "allowErrorCodes": [
+                    -5022
+                ]
+            }
+        },
+        {
+            "id": "GTX-006",
+            "name": "GTX Order with Order Status Check",
+            "description": "Place GTX order, wait briefly, then verify order status is NEW (resting on book)",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "status-check",
+                "workflow"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-gtx-order",
+                    "description": "Place initial GTX order to check status",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_BUY",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "gtxOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "orderId": "$gtxOrder.data.orderId"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "NEW",
+                    "timeInForce": "GTX"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "GTX-007",
+            "name": "GTX Order Cancel Flow",
+            "description": "Place GTX order, then cancel it to verify order lifecycle",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "cancel",
+                "lifecycle"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-gtx-order",
+                    "description": "Place GTX order to cancel",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_SELL",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "gtxOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "cancelOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "orderId": "$gtxOrder.data.orderId"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "CANCELED"
+                }
+            }
+        },
+        {
+            "id": "GTX-008",
+            "name": "Multiple GTX Orders - Ladder Strategy",
+            "description": "Place multiple GTX orders at different price levels to simulate a ladder entry strategy",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "ladder",
+                "multiple-orders",
+                "strategy"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-gtx-order-1",
+                    "description": "First ladder rung",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_BUY",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "gtxOrder1",
+                    "continueOnError": true
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.002,
+                    "price": "$DYNAMIC_LIMIT_BUY",
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "timeInForce": "GTX"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-all-orders",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "GTX-009",
+            "name": "GTX Order Event Validation",
+            "description": "Place GTX order and validate order update events are emitted correctly",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "events",
+                "order-event",
+                "websocket"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": 0.002,
+                    "price": "$DYNAMIC_GTX_BUY",
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "timeInForce": "GTX",
+                    "status": "NEW"
+                },
+                "events": [
+                    {
+                        "eventName": "orderUpdate",
+                        "timeout": 5000,
+                        "expectedData": {
+                            "symbol": "BTCUSDT",
+                            "side": "BUY",
+                            "orderType": "LIMIT",
+                            "timeInForce": "GTX"
+                        }
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "GTX-010",
+            "name": "GTX Cancel Single Order",
+            "description": "Place GTX order and cancel it individually, verifying cancel response",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "cancel",
+                "single-order"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-gtx-order",
+                    "description": "Place GTX order to cancel individually",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_BUY",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "gtxOrderToCancel"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "cancelOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "orderId": "$gtxOrderToCancel.data.orderId"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "CANCELED",
+                    "symbol": "BTCUSDT"
+                }
+            }
+        },
+        {
+            "id": "GTX-011",
+            "name": "Multiple GTX Orders - Batch Cancel All",
+            "description": "Place 3 GTX orders on the same symbol and cancel all at once using cancelAllOpenOrders",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "batch-cancel",
+                "multiple-orders"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-gtx-order-1",
+                    "description": "First GTX order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_BUY",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "gtxOrder1"
+                },
+                {
+                    "id": "place-gtx-order-2",
+                    "description": "Second GTX order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_SELL",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "gtxOrder2"
+                },
+                {
+                    "id": "place-gtx-order-3",
+                    "description": "Third GTX order (deeper in book)",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_LIMIT_BUY",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "gtxOrder3"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "cancelAllOpenOrders",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true
+            }
+        },
+        {
+            "id": "GTX-012",
+            "name": "GTX Order with Position Event Check",
+            "description": "Open position with market order, then place GTX reduce-only order and check position events",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "position",
+                "events",
+                "reduce-only"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "open-position",
+                    "description": "Open long position for GTX reduce test",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "storeResultAs": "openPosition"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "LIMIT",
+                    "quantity": 0.002,
+                    "price": "$DYNAMIC_GTX_SELL",
+                    "timeInForce": "GTX",
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "timeInForce": "GTX",
+                    "reduceOnly": true
+                },
+                "events": [
+                    {
+                        "eventName": "orderUpdate",
+                        "timeout": 5000,
+                        "expectedData": {
+                            "symbol": "BTCUSDT",
+                            "side": "SELL",
+                            "reduceOnly": true
+                        }
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-orders",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                },
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "GTX-013",
+            "name": "GTX Multi-Symbol Batch Test",
+            "description": "Place GTX orders on multiple symbols (BTC and ETH) and verify both are tracked",
+            "category": "gtx-orders",
+            "tags": [
+                "gtx",
+                "multi-symbol",
+                "batch"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-btc-gtx",
+                    "description": "GTX order on BTCUSDT",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_BUY",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "btcGtxOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "ETHUSDT",
+                    "side": "SELL",
+                    "type": "LIMIT",
+                    "quantity": 0.01,
+                    "price": "$DYNAMIC_GTX_SELL",
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "ETHUSDT",
+                    "timeInForce": "GTX"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-btc-orders",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                },
+                {
+                    "id": "cancel-eth-orders",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "ETHUSDT"
+                    }
+                }
+            ]
+        }
+    ]
+}

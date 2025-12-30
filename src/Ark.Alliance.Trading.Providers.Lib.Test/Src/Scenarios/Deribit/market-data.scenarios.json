@@ -1,0 +1,255 @@
+{
+    "version": "1.0.0",
+    "description": "Deribit Market Data Service Test Scenarios",
+    "scenarios": [
+        {
+            "id": "DMD-001",
+            "name": "Connect and Disconnect Lifecycle",
+            "description": "Test service connection and disconnection lifecycle",
+            "category": "lifecycle",
+            "tags": [
+                "lifecycle",
+                "connection",
+                "unit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false
+            },
+            "targetClass": "DeribitMarketDataService",
+            "targetMethod": "connect",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true
+            },
+            "cleanup": {
+                "method": "disconnect",
+                "parameters": {}
+            }
+        },
+        {
+            "id": "DMD-002",
+            "name": "Get Ticker - Valid Instrument",
+            "description": "Fetch ticker data for BTC-PERPETUAL",
+            "category": "snapshot",
+            "tags": [
+                "ticker",
+                "snapshot",
+                "unit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitMarketDataService",
+            "targetMethod": "getTicker",
+            "input": {
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "instrument": "BTC-PERPETUAL"
+                }
+            }
+        },
+        {
+            "id": "DMD-003",
+            "name": "Get Ticker - Invalid Instrument",
+            "description": "Attempt to fetch ticker for non-existent instrument",
+            "category": "error-handling",
+            "tags": [
+                "ticker",
+                "error",
+                "unit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitMarketDataService",
+            "targetMethod": "getTicker",
+            "input": {
+                "parameters": {
+                    "instrument": "INVALID-INSTRUMENT-XYZ"
+                }
+            },
+            "expected": {
+                "success": false,
+                "error": {
+                    "codeContains": "error"
+                }
+            }
+        },
+        {
+            "id": "DMD-004",
+            "name": "Get Order Book",
+            "description": "Fetch order book snapshot for BTC-PERPETUAL",
+            "category": "snapshot",
+            "tags": [
+                "orderbook",
+                "snapshot",
+                "unit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitMarketDataService",
+            "targetMethod": "getOrderBook",
+            "input": {
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL",
+                    "depth": 10
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "instrument": "BTC-PERPETUAL"
+                }
+            }
+        },
+        {
+            "id": "DMD-005",
+            "name": "Get Instrument Info",
+            "description": "Fetch instrument details for BTC-PERPETUAL",
+            "category": "snapshot",
+            "tags": [
+                "instrument",
+                "snapshot",
+                "unit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitMarketDataService",
+            "targetMethod": "getInstrument",
+            "input": {
+                "parameters": {
+                    "symbol": "BTC-PERPETUAL"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTC-PERPETUAL"
+                }
+            }
+        },
+        {
+            "id": "DMD-006",
+            "name": "Get Instruments List",
+            "description": "Fetch all BTC instruments",
+            "category": "snapshot",
+            "tags": [
+                "instruments",
+                "snapshot",
+                "unit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitMarketDataService",
+            "targetMethod": "getInstruments",
+            "input": {
+                "parameters": {
+                    "filter": {
+                        "baseCurrency": "BTC"
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultIsArray": true
+            }
+        },
+        {
+            "id": "DMD-007",
+            "name": "Quote Subscription",
+            "description": "Subscribe to quote updates for BTC-PERPETUAL",
+            "category": "streaming",
+            "tags": [
+                "subscription",
+                "quote",
+                "streaming"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitMarketDataService",
+            "targetMethod": "subscribeQuote",
+            "input": {
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "id": "quote_BTC-PERPETUAL_*"
+                }
+            }
+        },
+        {
+            "id": "DMD-008",
+            "name": "Not Connected Error",
+            "description": "Calling methods without connecting should fail",
+            "category": "error-handling",
+            "tags": [
+                "error",
+                "connection",
+                "unit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false,
+                "skipConnect": true
+            },
+            "targetClass": "DeribitMarketDataService",
+            "targetMethod": "getTicker",
+            "input": {
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL"
+                }
+            },
+            "expected": {
+                "success": false,
+                "error": {
+                    "code": "NOT_CONNECTED"
+                }
+            }
+        }
+    ]
+}

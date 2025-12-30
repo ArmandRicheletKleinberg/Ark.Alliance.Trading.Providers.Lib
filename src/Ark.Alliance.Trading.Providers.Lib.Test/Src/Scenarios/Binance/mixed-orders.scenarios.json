@@ -1,0 +1,746 @@
+{
+    "name": "Mixed Order Type Tests",
+    "description": "Comprehensive tests combining multiple order types (GTX, Algo) with event validation, batch operations, and order lifecycle workflows",
+    "provider": "binance",
+    "version": "1.0.0",
+    "scenarios": [
+        {
+            "id": "MIX-001",
+            "name": "GTX + Stop Loss Combination",
+            "description": "Place GTX limit entry order and stop loss simultaneously on same symbol",
+            "category": "mixed-orders",
+            "tags": [
+                "gtx",
+                "stop-loss",
+                "combination",
+                "bracket"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-gtx-entry",
+                    "description": "Place GTX limit buy as entry",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_BUY",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "gtxEntry"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "STOP_MARKET",
+                    "quantity": 0.002,
+                    "stopPrice": "$DYNAMIC_STOP_SELL"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "STOP_MARKET"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-all",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MIX-002",
+            "name": "Batch GTX Orders - Buy and Sell Sides",
+            "description": "Place multiple GTX orders on both buy and sell sides simultaneously",
+            "category": "mixed-orders",
+            "tags": [
+                "gtx",
+                "batch",
+                "both-sides"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "gtx-buy-1",
+                    "description": "First GTX buy",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_BUY",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "gtxBuy1"
+                },
+                {
+                    "id": "gtx-buy-2",
+                    "description": "Second GTX buy (deeper)",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_LIMIT_BUY",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "gtxBuy2"
+                },
+                {
+                    "id": "gtx-sell-1",
+                    "description": "GTX sell order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_SELL",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "gtxSell1"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "LIMIT",
+                    "quantity": 0.002,
+                    "price": "$DYNAMIC_LIMIT_SELL",
+                    "timeInForce": "GTX"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "timeInForce": "GTX"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "batch-cancel",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MIX-003",
+            "name": "Successive Algo Orders",
+            "description": "Create stop-loss, take-profit, and trailing stop in succession",
+            "category": "mixed-orders",
+            "tags": [
+                "algo",
+                "successive",
+                "sl-tp-trail"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "open-position",
+                    "description": "Open long position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.003
+                    },
+                    "storeResultAs": "position"
+                },
+                {
+                    "id": "stop-loss",
+                    "description": "Add stop loss",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "STOP_MARKET",
+                        "quantity": 0.001,
+                        "stopPrice": "$DYNAMIC_STOP_SELL",
+                        "reduceOnly": true
+                    },
+                    "storeResultAs": "stopLoss"
+                },
+                {
+                    "id": "take-profit",
+                    "description": "Add take profit",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "TAKE_PROFIT_MARKET",
+                        "quantity": 0.001,
+                        "stopPrice": "$DYNAMIC_STOP_BUY",
+                        "reduceOnly": true
+                    },
+                    "storeResultAs": "takeProfit"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "TRAILING_STOP_MARKET",
+                    "quantity": 0.001,
+                    "callbackRate": 1.5,
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "TRAILING_STOP_MARKET"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-all",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                },
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.003,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MIX-004",
+            "name": "Order Update - Modify LIMIT Price",
+            "description": "Place LIMIT order then modify its price using PUT endpoint",
+            "category": "mixed-orders",
+            "tags": [
+                "update",
+                "modify",
+                "limit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-limit",
+                    "description": "Place initial limit order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_LIMIT_BUY",
+                        "timeInForce": "GTC"
+                    },
+                    "storeResultAs": "originalOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "modifyOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "orderId": "$originalOrder.data.orderId",
+                    "side": "BUY",
+                    "quantity": 0.002,
+                    "price": "$DYNAMIC_GTX_BUY"
+                }
+            },
+            "expected": {
+                "success": true
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MIX-005",
+            "name": "Single Order Cancel with Event Validation",
+            "description": "Place order, cancel it, and verify cancel event received",
+            "category": "mixed-orders",
+            "tags": [
+                "cancel",
+                "single",
+                "events"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_BUY",
+                        "timeInForce": "GTC"
+                    },
+                    "storeResultAs": "orderToCancel"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "cancelOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "orderId": "$orderToCancel.data.orderId"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "CANCELED"
+                },
+                "events": [
+                    {
+                        "eventName": "orderUpdate",
+                        "timeout": 5000,
+                        "expectedData": {
+                            "symbol": "BTCUSDT",
+                            "orderStatus": "CANCELED"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "MIX-006",
+            "name": "Position Event After Market Fill",
+            "description": "Execute market order and validate position update event",
+            "category": "mixed-orders",
+            "tags": [
+                "position",
+                "events",
+                "market-fill"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.002
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "FILLED"
+                },
+                "events": [
+                    {
+                        "eventName": "orderUpdate",
+                        "timeout": 5000,
+                        "expectedData": {
+                            "symbol": "BTCUSDT",
+                            "orderStatus": "FILLED"
+                        }
+                    },
+                    {
+                        "eventName": "positionUpdate",
+                        "timeout": 5000,
+                        "expectedData": {
+                            "symbol": "BTCUSDT"
+                        }
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MIX-007",
+            "name": "Multi-Symbol Mixed Orders",
+            "description": "Place GTX on BTC and Algo on ETH simultaneously",
+            "category": "mixed-orders",
+            "tags": [
+                "multi-symbol",
+                "gtx",
+                "algo"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "btc-gtx",
+                    "description": "GTX order on BTC",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_BUY",
+                        "timeInForce": "GTX"
+                    },
+                    "storeResultAs": "btcOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "ETHUSDT",
+                    "side": "BUY",
+                    "type": "STOP_MARKET",
+                    "quantity": 0.01,
+                    "stopPrice": "$DYNAMIC_STOP_BUY"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "ETHUSDT",
+                    "type": "STOP_MARKET"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-btc",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                },
+                {
+                    "id": "cancel-eth",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "ETHUSDT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MIX-008",
+            "name": "Complete Bracket Order Lifecycle",
+            "description": "Full workflow: Open position with market, add GTX limit TP and stop SL, then batch cancel",
+            "category": "mixed-orders",
+            "tags": [
+                "bracket",
+                "lifecycle",
+                "complete-workflow"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "open-position",
+                    "description": "Open long with market order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "storeResultAs": "entryOrder"
+                },
+                {
+                    "id": "add-take-profit",
+                    "description": "Add GTX take-profit limit order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_SELL",
+                        "timeInForce": "GTX",
+                        "reduceOnly": true
+                    },
+                    "storeResultAs": "takeProfitOrder"
+                },
+                {
+                    "id": "add-stop-loss",
+                    "description": "Add stop loss",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "STOP_MARKET",
+                        "quantity": 0.002,
+                        "stopPrice": "$DYNAMIC_STOP_SELL",
+                        "reduceOnly": true
+                    },
+                    "storeResultAs": "stopLossOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "cancelAllOpenOrders",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true
+            },
+            "cleanup": [
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MIX-009",
+            "name": "Short Side Mixed Orders",
+            "description": "Open short position with GTX sell, add buy-side stop and take-profit",
+            "category": "mixed-orders",
+            "tags": [
+                "short",
+                "bracket",
+                "sell-side"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "open-short",
+                    "description": "Open short position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "storeResultAs": "shortEntry"
+                },
+                {
+                    "id": "stop-loss-buy",
+                    "description": "Stop loss for short (buy)",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "STOP_MARKET",
+                        "quantity": 0.002,
+                        "stopPrice": "$DYNAMIC_STOP_BUY",
+                        "reduceOnly": true
+                    },
+                    "storeResultAs": "stopLoss"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "TAKE_PROFIT_MARKET",
+                    "quantity": 0.002,
+                    "stopPrice": "$DYNAMIC_STOP_SELL",
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "type": "TAKE_PROFIT_MARKET",
+                    "side": "BUY"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-all",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                },
+                {
+                    "id": "close-short",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MIX-010",
+            "name": "Full Order Event Sequence",
+            "description": "Validate complete event sequence: NEW -> PARTIALLY_FILLED -> FILLED or CANCELED",
+            "category": "mixed-orders",
+            "tags": [
+                "events",
+                "sequence",
+                "lifecycle"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-limit",
+                    "description": "Place limit order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "LIMIT",
+                        "quantity": 0.002,
+                        "price": "$DYNAMIC_GTX_BUY",
+                        "timeInForce": "GTC"
+                    },
+                    "storeResultAs": "limitOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "orderId": "$limitOrder.data.orderId"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "NEW"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "cancel-order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "cancelAllOpenOrders",
+                    "parameters": {
+                        "symbol": "BTCUSDT"
+                    }
+                }
+            ]
+        }
+    ]
+}

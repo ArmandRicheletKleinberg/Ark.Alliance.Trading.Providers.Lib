@@ -1,0 +1,418 @@
+{
+    "name": "Market Order Tests",
+    "description": "Comprehensive tests for market orders including buy, sell, position events, and various market order workflows",
+    "provider": "binance",
+    "version": "1.0.0",
+    "scenarios": [
+        {
+            "id": "MKT-ORD-001",
+            "name": "Market Buy Order - Basic",
+            "description": "Place a basic market buy order on BTCUSDT",
+            "category": "market-orders",
+            "tags": [
+                "market",
+                "buy",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.002
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "status": "FILLED"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MKT-ORD-002",
+            "name": "Market Sell Order - Basic",
+            "description": "Place a basic market sell order on BTCUSDT",
+            "category": "market-orders",
+            "tags": [
+                "market",
+                "sell",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "open-long",
+                    "description": "Open long position first",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "storeResultAs": "openOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "quantity": 0.002,
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "status": "FILLED"
+                }
+            }
+        },
+        {
+            "id": "MKT-ORD-003",
+            "name": "Market Order - ETH Symbol",
+            "description": "Market buy on ETHUSDT to test cross-symbol compatibility",
+            "category": "market-orders",
+            "tags": [
+                "market",
+                "eth",
+                "buy"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "ETHUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.01
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "ETHUSDT",
+                    "status": "FILLED"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "ETHUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.01,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MKT-ORD-004",
+            "name": "Market Order with Event Validation",
+            "description": "Place market order and validate orderUpdate event is emitted",
+            "category": "market-orders",
+            "tags": [
+                "market",
+                "events",
+                "websocket"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "BUY",
+                    "type": "MARKET",
+                    "quantity": 0.002
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "FILLED"
+                },
+                "events": [
+                    {
+                        "eventName": "orderUpdate",
+                        "timeout": 5000,
+                        "expectedData": {
+                            "symbol": "BTCUSDT",
+                            "side": "BUY",
+                            "orderType": "MARKET"
+                        }
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MKT-ORD-005",
+            "name": "Market Order - Position Check After Fill",
+            "description": "Place market order then query positions to verify position created",
+            "category": "market-orders",
+            "tags": [
+                "market",
+                "position",
+                "workflow"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "place-market-order",
+                    "description": "Place market buy order",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "storeResultAs": "marketOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "getPosition",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true
+            },
+            "cleanup": [
+                {
+                    "id": "close-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "SELL",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MKT-ORD-006",
+            "name": "Market Order - ReduceOnly",
+            "description": "Place reduceOnly market order to close position",
+            "category": "market-orders",
+            "tags": [
+                "market",
+                "reduce-only",
+                "close"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "open-position",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "storeResultAs": "openPosition"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "quantity": 0.002,
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "reduceOnly": true,
+                    "status": "FILLED"
+                }
+            }
+        },
+        {
+            "id": "MKT-ORD-007",
+            "name": "Market Order - Short Position",
+            "description": "Open short position with market sell order",
+            "category": "market-orders",
+            "tags": [
+                "market",
+                "short",
+                "sell"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "quantity": 0.002
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "side": "SELL",
+                    "status": "FILLED"
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "close-short",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002,
+                        "reduceOnly": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "MKT-ORD-008",
+            "name": "Market Order - Round Trip (Buy then Sell)",
+            "description": "Complete round trip: buy market, verify fill, sell market to close",
+            "category": "market-orders",
+            "tags": [
+                "market",
+                "round-trip",
+                "lifecycle"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "setup": [
+                {
+                    "id": "market-buy",
+                    "description": "Open long with market buy",
+                    "targetClass": "BinanceRestClient",
+                    "targetMethod": "placeOrder",
+                    "parameters": {
+                        "symbol": "BTCUSDT",
+                        "side": "BUY",
+                        "type": "MARKET",
+                        "quantity": 0.002
+                    },
+                    "storeResultAs": "buyOrder"
+                }
+            ],
+            "targetClass": "BinanceRestClient",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "symbol": "BTCUSDT",
+                    "side": "SELL",
+                    "type": "MARKET",
+                    "quantity": 0.002,
+                    "reduceOnly": true
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "FILLED"
+                }
+            }
+        }
+    ]
+}
