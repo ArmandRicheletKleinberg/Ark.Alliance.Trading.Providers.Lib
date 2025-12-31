@@ -96,23 +96,24 @@ This library is architected following **industry-standard software design patter
 The codebase adheres to **Clean Architecture** principles, separating concerns into distinct layers:
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#1e3a5f','primaryTextColor':'#fff','primaryBorderColor':'#4a90e2','lineColor':'#aaa','secondaryColor':'#2d4a6c','tertiaryColor':'#3a5f7d','textColor':'#fff','background':'#0d1117','mainBkg':'#1e3a5f','nodeBorder':'#4a90e2','clusterBkg':'#1a2332','clusterBorder':'#4a90e2','edgeLabelBackground':'#1a2332'}}}%%
 graph TB
-    subgraph "Domain Layer"
+    subgraph DomainLayer["<b>Domain Layer</b>"]
         Entities["Domain Entities<br/>(Order, Position, Account)"]
         Interfaces["Interfaces<br/>(IProviderClient, IAuthStrategy)"]
     end
     
-    subgraph "Application Layer"
+    subgraph AppLayer["<b>Application Layer</b>"]
         UseCases["Use Cases<br/>(Place Order, Get Position)"]
         Mappers["Data Mappers<br/>(API ↔ Domain)"]
     end
     
-    subgraph "Infrastructure Layer"
+    subgraph InfraLayer["<b>Infrastructure Layer</b>"]
         Clients["API Clients<br/>(REST, WebSocket)"]
         Auth["Authentication<br/>(HMAC, Ed25519)"]
     end
     
-    subgraph "External Systems"
+    subgraph ExtSystems["<b>External Systems</b>"]
         Exchanges["Exchange APIs<br/>(Binance, Deribit, etc.)"]
     end
     
@@ -123,10 +124,17 @@ graph TB
     Clients --> Exchanges
     UseCases --> Mappers
     
-    style Entities fill:#e1f5ff
-    style Interfaces fill:#fff4e1
-    style UseCases fill:#d4edda
-    style Clients fill:#ffeaa7
+    style Entities fill:#2563eb,stroke:#60a5fa,stroke-width:2px,color:#fff
+    style Interfaces fill:#7c3aed,stroke:#a78bfa,stroke-width:2px,color:#fff
+    style UseCases fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style Mappers fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style Clients fill:#dc2626,stroke:#f87171,stroke-width:2px,color:#fff
+    style Auth fill:#dc2626,stroke:#f87171,stroke-width:2px,color:#fff
+    style Exchanges fill:#ea580c,stroke:#fb923c,stroke-width:2px,color:#fff
+    style DomainLayer fill:#1e3a8a,stroke:#60a5fa,stroke-width:3px,color:#fff
+    style AppLayer fill:#065f46,stroke:#34d399,stroke-width:3px,color:#fff
+    style InfraLayer fill:#991b1b,stroke:#f87171,stroke-width:3px,color:#fff
+    style ExtSystems fill:#9a3412,stroke:#fb923c,stroke-width:3px,color:#fff
 ```
 
 **Benefits**:
@@ -140,7 +148,9 @@ graph TB
 The library implements an **Event-Driven DDD** (Domain-Driven Design) approach:
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#1e3a5f','actorBkg':'#2d4a6c','actorBorder':'#60a5fa','actorTextColor':'#fff','signalColor':'#d1d5db','signalTextColor':'#fff','labelBoxBkgColor':'#1a2332','labelBoxBorderColor':'#60a5fa','labelTextColor':'#fff','loopTextColor':'#fff','noteBorderColor':'#60a5fa','noteBkgColor':'#2d4a6c','noteTextColor':'#fff','activationBorderColor':'#60a5fa','activationBkgColor':'#3a5f7d','sequenceNumberColor':'#fbbf24','messageTextColor':'#fff'}}}%%
 sequenceDiagram
+    autonumber
     participant Client as Application
     participant Service as Trading Service
     participant Domain as Domain Events
@@ -255,9 +265,11 @@ The library is designed with a **unified abstraction layer** to seamlessly integ
 #### 🎯 Provider Integration Roadmap
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#1e3a5f','primaryTextColor':'#fff','primaryBorderColor':'#60a5fa','grid':'#374151','done0':'#059669','done1':'#10b981','active0':'#f59e0b','active1':'#fbbf24','crit0':'#dc2626','crit1':'#ef4444','taskBkgColor':'#1e3a5f','taskBorderColor':'#60a5fa','taskTextColor':'#fff','todayLineColor':'#ef4444','textColor':'#fff','sectionBkgColor':'#1a2332','altSectionBkgColor':'#111827','gridLineColor':'#374151'}}}%%
 gantt
     title Provider Integration Timeline
     dateFormat YYYY-MM
+    
     section Completed
     Binance Futures (Full)   :done, binance, 2024-12, 2025-01
     Deribit (Market Data)     :done, deribit-md, 2025-01, 2025-01
@@ -379,24 +391,25 @@ Ark.Alliance.Trading.Providers.Lib/
 The library uses a **provider abstraction pattern** to ensure consistent behavior across different exchanges while respecting each provider's unique protocols.
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#1e3a5f','primaryTextColor':'#fff','primaryBorderColor':'#60a5fa','lineColor':'#d1d5db','secondaryColor':'#2d4a6c','tertiaryColor':'#3a5f7d','textColor':'#fff','background':'#0d1117','mainBkg':'#1e3a5f','nodeBorder':'#60a5fa','clusterBkg':'#1a2332','clusterBorder':'#60a5fa','edgeLabelBackground':'#1a2332'}}}%%
 graph TB
-    subgraph "Application Layer"
+    subgraph AppLayer["<b>Application Layer</b>"]
         App["Your Trading Application"]
     end
     
-    subgraph "Library Abstraction Layer"
+    subgraph LibLayer["<b>Library Abstraction Layer</b>"]
         IProvider["IProviderClient Interface"]
         Result["Result&lt;T&gt; Pattern"]
         IAuth["IAuthStrategy Interface"]
     end
     
-    subgraph "Provider Implementations"
+    subgraph ProviderImpl["<b>Provider Implementations</b>"]
         direction LR
         Binance["Binance Provider<br/>REST + WebSocket"]
         Deribit["Deribit Provider<br/>JSON-RPC"]
     end
     
-    subgraph "External APIs"
+    subgraph ExtAPIs["<b>External APIs</b>"]
         BinanceAPI["Binance Futures API<br/>HTTPS + WSS"]
         DeribitAPI["Deribit API<br/>WebSocket JSON-RPC"]
     end
@@ -410,11 +423,18 @@ graph TB
     Binance --> BinanceAPI
     Deribit --> DeribitAPI
     
-    style App fill:#e1f5ff
-    style IProvider fill:#fff4e1
-    style Result fill:#fff4e1
-    style Binance fill:#d4edda
-    style Deribit fill:#d4edda
+    style App fill:#2563eb,stroke:#60a5fa,stroke-width:2px,color:#fff
+    style IProvider fill:#7c3aed,stroke:#a78bfa,stroke-width:2px,color:#fff
+    style Result fill:#7c3aed,stroke:#a78bfa,stroke-width:2px,color:#fff
+    style IAuth fill:#7c3aed,stroke:#a78bfa,stroke-width:2px,color:#fff
+    style Binance fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style Deribit fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style BinanceAPI fill:#ea580c,stroke:#fb923c,stroke-width:2px,color:#fff
+    style DeribitAPI fill:#ea580c,stroke:#fb923c,stroke-width:2px,color:#fff
+    style AppLayer fill:#1e3a8a,stroke:#60a5fa,stroke-width:3px,color:#fff
+    style LibLayer fill:#581c87,stroke:#a78bfa,stroke-width:3px,color:#fff
+    style ProviderImpl fill:#065f46,stroke:#34d399,stroke-width:3px,color:#fff
+    style ExtAPIs fill:#9a3412,stroke:#fb923c,stroke-width:3px,color:#fff
 ```
 
 ### Base Class Mechanism
@@ -422,6 +442,7 @@ graph TB
 Abstract base classes provide shared functionality across providers:
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#1e3a5f','primaryTextColor':'#fff','primaryBorderColor':'#60a5fa','lineColor':'#d1d5db','classText':'#fff','fontSize':'14px'}}}%%
 classDiagram
     class IProviderClient {
         <<interface>>
@@ -491,14 +512,24 @@ classDiagram
         +generateSignature(data) string
     }
     
-    IProviderClient <|.. BinanceRestClient
-    IProviderClient <|.. DeribitJsonRpcClient
-    IAuthStrategy <|.. HmacSignatureGenerator
-    IAuthStrategy <|.. Ed25519SignatureGenerator
-    BaseJsonRpcClient <|-- DeribitJsonRpcClient
-    DeribitJsonRpcClient <|-- DeribitMarketDataClient
-    BinanceRestClient --> IAuthStrategy
-    DeribitJsonRpcClient --> IAuthStrategy
+    IProviderClient <|.. BinanceRestClient : implements
+    IProviderClient <|.. DeribitJsonRpcClient : implements
+    IAuthStrategy <|.. HmacSignatureGenerator : implements
+    IAuthStrategy <|.. Ed25519SignatureGenerator : implements
+    BaseJsonRpcClient <|-- DeribitJsonRpcClient : extends
+    DeribitJsonRpcClient <|-- DeribitMarketDataClient : extends
+    BinanceRestClient --> IAuthStrategy : uses
+    DeribitJsonRpcClient --> IAuthStrategy : uses
+    
+    style IProviderClient fill:#7c3aed,stroke:#a78bfa,stroke-width:2px,color:#fff
+    style IAuthStrategy fill:#7c3aed,stroke:#a78bfa,stroke-width:2px,color:#fff
+    style BaseJsonRpcClient fill:#581c87,stroke:#a78bfa,stroke-width:2px,color:#fff
+    style BinanceRestClient fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style BinanceWebSocketClient fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style DeribitJsonRpcClient fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style DeribitMarketDataClient fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style HmacSignatureGenerator fill:#2563eb,stroke:#60a5fa,stroke-width:2px,color:#fff
+    style Ed25519SignatureGenerator fill:#2563eb,stroke:#60a5fa,stroke-width:2px,color:#fff
 ```
 
 ### Result Pattern
@@ -506,6 +537,7 @@ classDiagram
 All API operations return a `Result<T>` object for consistent, type-safe error handling:
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#1e3a5f','primaryTextColor':'#fff','primaryBorderColor':'#60a5fa','lineColor':'#d1d5db','classText':'#fff','fontSize':'14px'}}}%%
 classDiagram
     class Result~T~ {
         +success boolean
@@ -544,8 +576,12 @@ classDiagram
         +timestamp number
     }
     
-    Result --> ResultStatus
-    Result --> ErrorDetail
+    Result --> ResultStatus : uses
+    Result --> ErrorDetail : contains
+    
+    style Result fill:#2563eb,stroke:#60a5fa,stroke-width:2px,color:#fff
+    style ResultStatus fill:#f59e0b,stroke:#fbbf24,stroke-width:2px,color:#fff
+    style ErrorDetail fill:#dc2626,stroke:#f87171,stroke-width:2px,color:#fff
 ```
 
 ### Architecture Diagrams
@@ -553,6 +589,7 @@ classDiagram
 #### Order Placement Flow (Binance)
 
 ```mermaid
+%%{init: {'theme':'dark', 'themVariables': {'primaryColor':'#1e3a5f','actorBkg':'#2d4a6c','actorBorder':'#60a5fa','actorTextColor':'#fff','signalColor':'#d1d5db','signalTextColor':'#fff','labelBoxBkgColor':'#1a2332','labelBoxBorderColor':'#60a5fa','labelTextColor':'#fff','loopTextColor':'#fff','noteBorderColor':'#60a5fa','noteBkgColor':'#2d4a6c','noteTextColor':'#fff','activationBorderColor':'#60a5fa','activationBkgColor':'#3a5f7d','sequenceNumberColor':'#fbbf24','messageTextColor':'#fff'}}}%%
 sequenceDiagram
     autonumber
     participant App as Trading Application
@@ -580,6 +617,7 @@ sequenceDiagram
 #### WebSocket Authentication & Subscription Flow (Deribit)
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#1e3a5f','actorBkg':'#2d4a6c','actorBorder':'#60a5fa','actorTextColor':'#fff','signalColor':'#d1d5db','signalTextColor':'#fff','labelBoxBkgColor':'#1a2332','labelBoxBorderColor':'#60a5fa','labelTextColor':'#fff','loopTextColor':'#fff','noteBorderColor':'#60a5fa','noteBkgColor':'#2d4a6c','noteTextColor':'#fff','activationBorderColor':'#60a5fa','activationBkgColor':'#3a5f7d','sequenceNumberColor':'#fbbf24','messageTextColor':'#fff'}}}%%
 sequenceDiagram
     autonumber
     participant App as Trading Application
@@ -595,7 +633,7 @@ sequenceDiagram
     Client->>Auth: generateSignature(timestamp + nonce)
     Auth-->>Client: Ed25519 signature
     Client->>WS: JSON-RPC: public/auth {client_id, signature, timestamp}
-    WS-->>Client: {access_token, refresh_token, expires_in}
+    WS-->>Client:  {access_token, refresh_token, expires_in}
     Client->>Client: Store tokens & start refresh timer
     Client-->>App: Result<AuthSuccess>
     
@@ -666,20 +704,21 @@ The library includes a comprehensive test suite using a **scenario-based testing
 ### Test Architecture
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#1e3a5f','primaryTextColor':'#fff','primaryBorderColor':'#60a5fa','lineColor':'#d1d5db','secondaryColor':'#2d4a6c','tertiaryColor':'#3a5f7d','textColor':'#fff','background':'#0d1117','mainBkg':'#1e3a5f','nodeBorder':'#60a5fa','clusterBkg':'#1a2332','clusterBorder':'#60a5fa','edgeLabelBackground':'#1a2332'}}}%%
 flowchart TB
-    subgraph TestFramework["Test Framework"]
+    subgraph TestFramework["<b>Test Framework</b>"]
         Engine["ReflectionTestEngine<br/>(Reflection + Dependency Injection)"]
         DynParams["DynamicOrderParams<br/>(Runtime Price Resolution)"]
         Scenarios["JSON Scenario Files<br/>(Declarative Test Definitions)"]
     end
     
-    subgraph LibraryUnderTest["Library Under Test"]
+    subgraph LibraryUnderTest["<b>Library Under Test</b>"]
         RestClient["BinanceRestClient"]
         WSClient["BinanceWebSocketClient"]
         Mappers["Response Mappers"]
     end
     
-    subgraph ExternalAPI["Binance Testnet"]
+    subgraph ExternalAPI["<b>Binance Testnet</b>"]
         REST["REST API<br/>fapi.binance.com"]
         WS["WebSocket<br/>fstream.binance.com"]
     end
@@ -696,9 +735,18 @@ flowchart TB
     Mappers -->|Domain Models| Engine
     Engine -->|Assert & Report| TestResults["Test Results<br/>(error-report.json)"]
     
-    style Engine fill:#e1f5ff
-    style DynParams fill:#fff4e1
-    style Scenarios fill:#d4edda
+    style Engine fill:#2563eb,stroke:#60a5fa,stroke-width:2px,color:#fff
+    style DynParams fill:#7c3aed,stroke:#a78bfa,stroke-width:2px,color:#fff
+    style Scenarios fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style RestClient fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style WSClient fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style Mappers fill:#059669,stroke:#34d399,stroke-width:2px,color:#fff
+    style REST fill:#ea580c,stroke:#fb923c,stroke-width:2px,color:#fff
+    style WS fill:#ea580c,stroke:#fb923c,stroke-width:2px,color:#fff
+    style TestResults fill:#f59e0b,stroke:#fbbf24,stroke-width:2px,color:#fff
+    style TestFramework fill:#1e3a8a,stroke:#60a5fa,stroke-width:3px,color:#fff
+    style LibraryUnderTest fill:#065f46,stroke:#34d399,stroke-width:3px,color:#fff
+    style ExternalAPI fill:#9a3412,stroke:#fb923c,stroke-width:3px,color:#fff
 ```
 
 ### Test Coverage
