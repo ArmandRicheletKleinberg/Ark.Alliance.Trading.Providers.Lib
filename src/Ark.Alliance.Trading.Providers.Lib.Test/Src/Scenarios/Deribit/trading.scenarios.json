@@ -1,0 +1,480 @@
+{
+    "version": "1.0.0",
+    "description": "Deribit Trading Service Test Scenarios",
+    "scenarios": [
+        {
+            "id": "DTR-001",
+            "name": "Service Initial State",
+            "description": "Verify trading service starts in disconnected state",
+            "category": "lifecycle",
+            "tags": [
+                "lifecycle",
+                "connection",
+                "unit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": false,
+                "skipConnect": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "isConnected",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultData": false
+            }
+        },
+        {
+            "id": "DTR-002",
+            "name": "Connect Trading Service",
+            "description": "Connect and authenticate trading service",
+            "category": "lifecycle",
+            "tags": [
+                "lifecycle",
+                "connection",
+                "auth",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "connect",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true
+            },
+            "cleanup": {
+                "method": "disconnect",
+                "parameters": {}
+            }
+        },
+        {
+            "id": "DTR-003",
+            "name": "Place Limit Buy Order",
+            "description": "Place a limit buy order on BTC-PERPETUAL",
+            "category": "orders",
+            "tags": [
+                "orders",
+                "limit",
+                "buy",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": "10",
+                    "price": "30000"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "side": "BUY",
+                    "status": "NEW"
+                }
+            },
+            "cleanup": {
+                "method": "cancelAllOrders",
+                "parameters": {}
+            }
+        },
+        {
+            "id": "DTR-004",
+            "name": "Place Limit Sell Order",
+            "description": "Place a limit sell order on BTC-PERPETUAL",
+            "category": "orders",
+            "tags": [
+                "orders",
+                "limit",
+                "sell",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL",
+                    "side": "SELL",
+                    "type": "LIMIT",
+                    "quantity": "10",
+                    "price": "100000"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "side": "SELL",
+                    "status": "NEW"
+                }
+            },
+            "cleanup": {
+                "method": "cancelAllOrders",
+                "parameters": {}
+            }
+        },
+        {
+            "id": "DTR-005",
+            "name": "Cancel Single Order",
+            "description": "Place an order then cancel it",
+            "category": "orders",
+            "tags": [
+                "orders",
+                "cancel",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "cancelOrder",
+            "input": {
+                "parameters": {
+                    "orderId": "{{previousOrderId}}"
+                }
+            },
+            "setup": {
+                "method": "placeOrder",
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": "10",
+                    "price": "30000"
+                },
+                "extractField": "orderId"
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "status": "CANCELED"
+                }
+            }
+        },
+        {
+            "id": "DTR-006",
+            "name": "Cancel All Orders",
+            "description": "Cancel all open orders",
+            "category": "orders",
+            "tags": [
+                "orders",
+                "cancel-all",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "cancelAllOrders",
+            "input": {
+                "parameters": {}
+            },
+            "setup": {
+                "method": "placeOrder",
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": "10",
+                    "price": "30000"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "cancelledCount": 1
+                }
+            }
+        },
+        {
+            "id": "DTR-007",
+            "name": "Get Order By ID",
+            "description": "Retrieve order details by order ID",
+            "category": "orders",
+            "tags": [
+                "orders",
+                "query",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "getOrder",
+            "input": {
+                "parameters": {
+                    "orderId": "{{previousOrderId}}"
+                }
+            },
+            "setup": {
+                "method": "placeOrder",
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": "10",
+                    "price": "30000"
+                },
+                "extractField": "orderId"
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "instrument": "BTC-PERPETUAL"
+                }
+            },
+            "cleanup": {
+                "method": "cancelAllOrders",
+                "parameters": {}
+            }
+        },
+        {
+            "id": "DTR-008",
+            "name": "Get Open Orders",
+            "description": "Retrieve all open orders",
+            "category": "orders",
+            "tags": [
+                "orders",
+                "query",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "getOpenOrders",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultIsArray": true
+            }
+        },
+        {
+            "id": "DTR-009",
+            "name": "Get Position",
+            "description": "Get position for BTC-PERPETUAL",
+            "category": "positions",
+            "tags": [
+                "positions",
+                "query",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "getPosition",
+            "input": {
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTC-PERPETUAL"
+                }
+            }
+        },
+        {
+            "id": "DTR-010",
+            "name": "Get All Positions",
+            "description": "Get all positions",
+            "category": "positions",
+            "tags": [
+                "positions",
+                "query",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "getPositions",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultIsArray": true
+            }
+        },
+        {
+            "id": "DTR-011",
+            "name": "NOT_CONNECTED Error",
+            "description": "Verify error when trading before connecting",
+            "category": "error-handling",
+            "tags": [
+                "error",
+                "connection",
+                "unit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": false,
+                "skipConnect": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "placeOrder",
+            "input": {
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL",
+                    "side": "BUY",
+                    "type": "LIMIT",
+                    "quantity": "10",
+                    "price": "30000"
+                }
+            },
+            "expected": {
+                "success": false,
+                "error": {
+                    "code": "NOT_CONNECTED"
+                }
+            }
+        },
+        {
+            "id": "DTR-012",
+            "name": "Order Event Callbacks",
+            "description": "Verify order update events are emitted",
+            "category": "events",
+            "tags": [
+                "events",
+                "callbacks",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "onOrderUpdate",
+            "input": {
+                "parameters": {
+                    "callback": "validateOrderEvent"
+                }
+            },
+            "expected": {
+                "success": true
+            }
+        },
+        {
+            "id": "DTR-013",
+            "name": "Position Event Callbacks",
+            "description": "Verify position update events are emitted",
+            "category": "events",
+            "tags": [
+                "events",
+                "callbacks",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "onPositionUpdate",
+            "input": {
+                "parameters": {
+                    "callback": "validatePositionEvent"
+                }
+            },
+            "expected": {
+                "success": true
+            }
+        },
+        {
+            "id": "DTR-014",
+            "name": "Close Position",
+            "description": "Close an open position",
+            "category": "positions",
+            "tags": [
+                "positions",
+                "close",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitTradingService",
+            "targetMethod": "closePosition",
+            "input": {
+                "parameters": {
+                    "instrument": "BTC-PERPETUAL"
+                }
+            },
+            "expected": {
+                "success": true
+            },
+            "notes": "Requires open position - may fail if no position exists"
+        }
+    ]
+}
