@@ -96,10 +96,11 @@ sequenceDiagram
 
 ## Usage
 
+### Market Data (Public)
+
 ```typescript
 import { DeribitMarketDataClient, DeribitEnvironment } from 'ark-alliance-trading-providers-lib/Deribit';
 
-// Public market data (no credentials needed)
 const client = new DeribitMarketDataClient({
     credentials: { clientId: '', clientSecret: '' },
     environment: DeribitEnvironment.TESTNET
@@ -108,3 +109,55 @@ const client = new DeribitMarketDataClient({
 await client.connect();
 const ticker = await client.getTicker('BTC-PERPETUAL');
 ```
+
+### Trading (Authenticated)
+
+```typescript
+import { DeribitTradingClient, DeribitEnvironment } from 'ark-alliance-trading-providers-lib/Deribit';
+
+const client = new DeribitTradingClient({
+    clientId: 'your-client-id',
+    clientSecret: 'your-client-secret',
+    environment: DeribitEnvironment.TESTNET
+});
+
+await client.connect();
+
+// Place a limit buy order
+const result = await client.buy({
+    instrument_name: 'BTC-PERPETUAL',
+    amount: 100,
+    type: 'limit',
+    price: 40000
+});
+
+// Cancel order
+await client.cancelOrder(result.data.order.order_id);
+
+// Get positions
+const positions = await client.getPositions('BTC');
+```
+
+### User Data (Authenticated)
+
+```typescript
+import { DeribitUserDataClient, DeribitEnvironment } from 'ark-alliance-trading-providers-lib/Deribit';
+
+const client = new DeribitUserDataClient({
+    clientId: 'your-client-id',
+    clientSecret: 'your-client-secret',
+    environment: DeribitEnvironment.TESTNET
+});
+
+await client.connect();
+
+// Get account summary
+const account = await client.getAccountSummary('BTC');
+
+// Subscribe to user changes
+await client.subscribeUserChanges('BTC-PERPETUAL', 
+    (order) => console.log('Order update:', order),
+    (position) => console.log('Position update:', position)
+);
+```
+

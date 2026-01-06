@@ -1,0 +1,365 @@
+{
+    "version": "1.0.0",
+    "description": "Deribit User Data Client Test Scenarios",
+    "scenarios": [
+        {
+            "id": "DUD-001",
+            "name": "Initial Disconnected State",
+            "description": "Verify client starts in disconnected state",
+            "category": "lifecycle",
+            "tags": [
+                "lifecycle",
+                "connection",
+                "unit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": false,
+                "skipConnect": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "isConnected",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultData": false
+            }
+        },
+        {
+            "id": "DUD-002",
+            "name": "Connect to Testnet",
+            "description": "Authenticate and connect to Deribit testnet",
+            "category": "lifecycle",
+            "tags": [
+                "lifecycle",
+                "connection",
+                "auth",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "connect",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true
+            },
+            "cleanup": {
+                "method": "disconnect",
+                "parameters": {}
+            }
+        },
+        {
+            "id": "DUD-003",
+            "name": "Get Account Summary - BTC",
+            "description": "Fetch account summary for BTC currency",
+            "category": "account",
+            "tags": [
+                "account",
+                "balance",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "getAccountSummary",
+            "input": {
+                "parameters": {
+                    "currency": "BTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "currency": "BTC"
+                }
+            }
+        },
+        {
+            "id": "DUD-004",
+            "name": "Get Account Summary - ETH",
+            "description": "Fetch account summary for ETH currency",
+            "category": "account",
+            "tags": [
+                "account",
+                "balance",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "getAccountSummary",
+            "input": {
+                "parameters": {
+                    "currency": "ETH"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "currency": "ETH"
+                }
+            }
+        },
+        {
+            "id": "DUD-005",
+            "name": "Get Positions - BTC",
+            "description": "Fetch all positions for BTC currency",
+            "category": "positions",
+            "tags": [
+                "positions",
+                "pnl",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "getPositions",
+            "input": {
+                "parameters": {
+                    "currency": "BTC"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultIsArray": true
+            }
+        },
+        {
+            "id": "DUD-006",
+            "name": "Get Single Position",
+            "description": "Fetch position for BTC-PERPETUAL instrument",
+            "category": "positions",
+            "tags": [
+                "positions",
+                "instrument",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "getPosition",
+            "input": {
+                "parameters": {
+                    "instrumentName": "BTC-PERPETUAL"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "BTC-PERPETUAL"
+                }
+            }
+        },
+        {
+            "id": "DUD-007",
+            "name": "Get Open Orders - All",
+            "description": "Fetch all open orders across all instruments",
+            "category": "orders",
+            "tags": [
+                "orders",
+                "retrieval",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "getOpenOrders",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultIsArray": true
+            }
+        },
+        {
+            "id": "DUD-008",
+            "name": "Get Open Orders - By Instrument",
+            "description": "Fetch open orders for BTC-PERPETUAL",
+            "category": "orders",
+            "tags": [
+                "orders",
+                "instrument",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "getOpenOrders",
+            "input": {
+                "parameters": {
+                    "instrumentName": "BTC-PERPETUAL"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultIsArray": true
+            }
+        },
+        {
+            "id": "DUD-009",
+            "name": "Subscribe User Changes",
+            "description": "Subscribe to order/position/trade updates for BTC-PERPETUAL",
+            "category": "streaming",
+            "tags": [
+                "subscription",
+                "orders",
+                "positions",
+                "streaming"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "subscribeUserChanges",
+            "input": {
+                "parameters": {
+                    "instrumentName": "BTC-PERPETUAL"
+                }
+            },
+            "expected": {
+                "success": true
+            },
+            "cleanup": {
+                "method": "unsubscribeUserChanges",
+                "parameters": {
+                    "instrumentName": "BTC-PERPETUAL"
+                }
+            }
+        },
+        {
+            "id": "DUD-010",
+            "name": "Subscribe Portfolio",
+            "description": "Subscribe to portfolio/account updates for BTC",
+            "category": "streaming",
+            "tags": [
+                "subscription",
+                "portfolio",
+                "account",
+                "streaming"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "subscribePortfolio",
+            "input": {
+                "parameters": {
+                    "currency": "BTC"
+                }
+            },
+            "expected": {
+                "success": true
+            }
+        },
+        {
+            "id": "DUD-011",
+            "name": "NOT_CONNECTED Error",
+            "description": "Verify error when calling methods before connecting",
+            "category": "error-handling",
+            "tags": [
+                "error",
+                "connection",
+                "unit"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": false,
+                "skipConnect": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "getAccountSummary",
+            "input": {
+                "parameters": {
+                    "currency": "BTC"
+                }
+            },
+            "expected": {
+                "success": false,
+                "error": {
+                    "code": "NOT_CONNECTED"
+                }
+            }
+        },
+        {
+            "id": "DUD-012",
+            "name": "Disconnect Gracefully",
+            "description": "Connect and then disconnect gracefully",
+            "category": "lifecycle",
+            "tags": [
+                "lifecycle",
+                "disconnection",
+                "integration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "deribit",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "DeribitUserDataClient",
+            "targetMethod": "disconnect",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true
+            }
+        }
+    ]
+}
