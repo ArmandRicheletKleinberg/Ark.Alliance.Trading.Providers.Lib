@@ -12,6 +12,7 @@ module.exports = {
         '^ark-alliance-trading-providers-lib/Common/services$': '<rootDir>/../Ark.Alliance.Trading.Providers.Lib/Src/Common/services/index.ts',
         '^ark-alliance-trading-providers-lib/Deribit$': '<rootDir>/../Ark.Alliance.Trading.Providers.Lib/Src/Deribit/index.ts',
         '^ark-alliance-trading-providers-lib/Binance$': '<rootDir>/../Ark.Alliance.Trading.Providers.Lib/Src/Binance/index.ts',
+        '^ark-alliance-trading-providers-lib/Kraken$': '<rootDir>/../Ark.Alliance.Trading.Providers.Lib/Src/Kraken/index.ts',
         '^ark-alliance-trading-providers-lib/Services$': '<rootDir>/../Ark.Alliance.Trading.Providers.Lib/Src/Services/index.ts',
         '^ark-alliance-trading-providers-lib$': '<rootDir>/../Ark.Alliance.Trading.Providers.Lib/Src/index.ts',
         // Internal aliases
