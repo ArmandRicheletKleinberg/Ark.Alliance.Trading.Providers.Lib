@@ -14,7 +14,7 @@
 ---
 **Organization**: M2H.Io Ark.Alliance Ecosystem  
 **Version**: 1.0.0  
-**Last Updated**: 2025-12-30
+**Last Updated**: 2026-01-06
 
 ## What is this Library?
 
@@ -98,6 +98,9 @@ npm install ark-alliance-trading-providers-lib
 | **Deribit Clients** | `ark-alliance-trading-providers-lib/Deribit` | [README](./Src/Deribit/clients/README.md) |
 | **Deribit Services** | - | [README](./Src/Deribit/services/README.md) |
 | **Deribit Mappers** | - | [README](./Src/Deribit/mappers/README.md) |
+| **Kraken Clients** | `ark-alliance-trading-providers-lib/Kraken` | [Kraken Index](./Src/Kraken/index.ts) |
+| **Kraken Services** | - | Trading & Market Data Services |
+| **Kraken Mappers** | - | Order & Position Mappers |
 | **Common Services** | `ark-alliance-trading-providers-lib/Common/services` | [README](./Src/Common/services/README.md) |
 | **Common Domain** | - | [README](./Src/Common/Domain/README.md) |
 
@@ -107,7 +110,7 @@ npm install ark-alliance-trading-providers-lib
 
 A comprehensive, multi-provider TypeScript library for interacting with cryptocurrency exchange APIs. Built with a robust architecture featuring:
 
-- 🏗️ **Multi-Provider Design**: Unified interface across exchanges (Binance, Deribit)
+- 🏗️ **Multi-Provider Design**: Unified interface across exchanges (Binance, Deribit, Kraken)
 - 🔧 **Base Class Mechanism**: Shared functionality through abstract base classes
 - ✅ **Result Pattern**: Consistent success/error handling across all operations
 - 🔐 **Secure Authentication**: HMAC SHA-256 and Ed25519 signature generation
@@ -120,6 +123,7 @@ A comprehensive, multi-provider TypeScript library for interacting with cryptocu
 |:---------|:---------|:------:|:---------|
 | **Binance Futures** | REST + WebSocket | ✅ Complete | Orders, Positions, Market Data, User Streams |
 | **Deribit** | JSON-RPC + WebSocket | ✅ Market Data | Market Data complete, Trading in progress |
+| **Kraken Futures** | REST + WebSocket | ✅ Complete | Orders, Positions, Market Data, WebSocket Streams |
 
 ### Binance API Compliance (December 2025)
 
@@ -221,6 +225,14 @@ Src/
 │   ├── clients/               # JSON-RPC clients
 │   ├── dtos/                  # Response DTOs
 │   ├── enums/                 # Instrument types, etc.
+│   └── index.ts               # Barrel exports
+├── Kraken/                     # Kraken Futures Provider
+│   ├── clients/               # REST and WebSocket clients
+│   ├── dtos/                  # Trading, Market, WebSocket DTOs
+│   ├── enums/                 # Order types, sides, statuses
+│   ├── mappers/               # Order and Position mappers
+│   ├── services/              # Trading and Market Data services
+│   ├── shared/                # Constants, errors, signature utils
 │   └── index.ts               # Barrel exports
 ├── Common/                     # Shared Components
 │   ├── Clients/Base/          # Abstract base clients

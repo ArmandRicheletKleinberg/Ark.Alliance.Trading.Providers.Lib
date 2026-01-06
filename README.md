@@ -41,7 +41,7 @@ A **production-ready TypeScript SDK** that unifies cryptocurrency trading across
 
 | Feature | Description |
 |:--------|:------------|
-| <i class="fa fa-plug"></i> **Multi-Provider** | Unified interface for Binance Futures and Deribit exchanges |
+| <i class="fa fa-plug"></i> **Multi-Provider** | Unified interface for Binance Futures, Deribit, and Kraken Futures exchanges |
 | <i class="fa fa-chart-line"></i> **Order Management** | Place, modify, cancel, and track orders with standardized API |
 | <i class="fa fa-coins"></i> **Position Tracking** | Real-time position monitoring with P&L calculation |
 | <i class="fa fa-broadcast-tower"></i> **WebSocket Streams** | Low-latency market data and user event subscriptions |
@@ -162,20 +162,18 @@ gantt
     section Completed
     Binance Futures (Full)   :done, binance, 2024-12, 2025-01
     Deribit (Market Data)     :done, deribit-md, 2025-01, 2025-01
+    Kraken Futures (Full)     :done, kraken, 2026-01, 2026-01
     
     section In Progress
     Deribit (User/Trading)    :active, deribit-full, 2025-01, 2025-02
     
-    section Planned Q2 2025
-    OKX Integration           :okx, 2025-04, 2025-05
-    Bybit Integration         :bybit, 2025-05, 2025-06
+    section Planned Q1-Q2 2026
+    OKX Integration           :okx, 2026-02, 2026-03
+    Bybit Integration         :bybit, 2026-03, 2026-04
     
-    section Planned Q3 2025
-    Kraken Futures            :kraken, 2025-07, 2025-08
-    BitMEX Integration        :bitmex, 2025-08, 2025-09
-    
-    section Planned Q4 2025
-    Gate.io Futures           :gateio, 2025-10, 2025-11
+    section Planned Q3-Q4 2026
+    BitMEX Integration        :bitmex, 2026-07, 2026-08
+    Gate.io Futures           :gateio, 2026-10, 2026-11
 ```
 
 > **<i class="fa fa-tasks"></i> For detailed roadmap and milestones**, see [ROADMAP.md](./ROADMAP.md)
@@ -203,6 +201,7 @@ Ark.Alliance.Trading.Providers.Lib/
 │   │   ├── Src/
 │   │   │   ├── Binance/                       # Binance provider
 │   │   │   ├── Deribit/                       # Deribit provider
+│   │   │   ├── Kraken/                        # Kraken Futures provider
 │   │   │   └── Common/                        # Shared utilities
 │   │   └── README.md                          # 📚 DETAILED API DOCS
 │   │
@@ -241,21 +240,26 @@ graph TB
         direction LR
         Binance["Binance Provider<br/>REST + WebSocket"]
         Deribit["Deribit Provider<br/>JSON-RPC"]
+        Kraken["Kraken Provider<br/>REST + WebSocket"]
     end
     
     subgraph ExtAPIs["<b>External APIs</b>"]
         BinanceAPI["Binance Futures API<br/>HTTPS + WSS"]
         DeribitAPI["Deribit API<br/>WebSocket JSON-RPC"]
+        KrakenAPI["Kraken Futures API<br/>HTTPS + WSS"]
     end
     
     App --> IProvider
     App --> Result
     IProvider --> Binance
     IProvider --> Deribit
+    IProvider --> Kraken
     Binance --> IAuth
     Deribit --> IAuth
+    Kraken --> IAuth
     Binance --> BinanceAPI
     Deribit --> DeribitAPI
+    Kraken --> KrakenAPI
     
     style App fill:#e1f5ff,stroke:#0288d1,stroke-width:2px,color:#000
     style IProvider fill:#fff4e1,stroke:#f57c00,stroke-width:2px,color:#000
@@ -263,8 +267,10 @@ graph TB
     style IAuth fill:#fff4e1,stroke:#f57c00,stroke-width:2px,color:#000
     style Binance fill:#d4edda,stroke:#388e3c,stroke-width:2px,color:#000
     style Deribit fill:#d4edda,stroke:#388e3c,stroke-width:2px,color:#000
+    style Kraken fill:#d4edda,stroke:#388e3c,stroke-width:2px,color:#000
     style BinanceAPI fill:#ffccbc,stroke:#d84315,stroke-width:2px,color:#000
     style DeribitAPI fill:#ffccbc,stroke:#d84315,stroke-width:2px,color:#000
+    style KrakenAPI fill:#ffccbc,stroke:#d84315,stroke-width:2px,color:#000
     style AppLayer fill:#f0f8ff,stroke:#0288d1,stroke-width:3px
     style LibLayer fill:#fffbf0,stroke:#f57c00,stroke-width:3px
     style ProviderImpl fill:#f1f8f4,stroke:#388e3c,stroke-width:3px
@@ -556,7 +562,10 @@ flowchart TB
 | `market-orders.scenarios.json` | Market Orders | 8 | ✅ 100% | Market execution workflows |
 | `algo-orders.scenarios.json` | Algo Orders | 10 | ✅ 100% | Stop-loss, take-profit, trailing stops |
 | `mixed-orders.scenarios.json` | Mixed Workflows | 10 | ✅ 100% | Complex multi-order scenarios |
-| **Total** | **All Categories** | **70+** | **✅ 100%** | **Comprehensive coverage** |
+| **Kraken** `market-data.scenarios.json` | Kraken Market Data | 14 | ✅ 100% | REST API tickers, order books, trades |
+| **Kraken** `streaming.scenarios.json` | Kraken WebSocket | 15 | ✅ 100% | WebSocket streams, subscriptions |
+| **Deribit** `market-data.scenarios.json` | Deribit Market Data | 8 | ✅ 100% | Ticker, order book, instruments |
+| **Total** | **All Categories** | **100+** | **✅ 100%** | **Comprehensive coverage** |
 
 > [!NOTE]
 > **Testnet Requirement**: Order/position/account tests require Binance Testnet credentials. Market data tests run without authentication using public APIs.

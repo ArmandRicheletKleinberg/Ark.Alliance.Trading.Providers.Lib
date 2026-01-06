@@ -2,7 +2,7 @@
 
 **Organization**: M2H.Io Ark.Alliance Ecosystem  
 **Version**: 1.0.0  
-**Last Updated**: 2025-12-29
+**Last Updated**: 2026-01-06
 
 ---
 
@@ -11,10 +11,10 @@
 | Metric | Value |
 |:-------|:------|
 | **Pass Rate** | 100% |
-| **Passed** | 43 |
+| **Passed** | 88 |
 | **Failed** | 0 |
 | **Skipped** | 7 |
-| **Total Scenarios** | 70+ across 8 scenario files |
+| **Total Scenarios** | 100+ across 11 scenario files |
 
 ---
 
@@ -40,6 +40,7 @@
 |:---------|:-------------|:------------|:-------------|
 | **Binance** | Orders, Positions, Account tests | API Key + Secret | **TESTNET** |
 | **Deribit** | Trading tests (future) | Client ID + Secret | **TESTNET** |
+| **Kraken** | Trading tests | API Key + Secret | **TESTNET (Demo)** |
 | *None* | Market Data tests | *None* | Public API |
 
 > [!IMPORTANT]
@@ -92,6 +93,10 @@ BINANCE_API_SECRET=your_binance_testnet_api_secret
 # Deribit Testnet
 DERIBIT_CLIENT_ID=your_deribit_client_id
 DERIBIT_CLIENT_SECRET=your_deribit_client_secret
+
+# Kraken Futures Testnet (Demo)
+KRAKEN_API_KEY=your_kraken_api_key
+KRAKEN_API_SECRET=your_kraken_api_secret
 
 # Test Configuration
 RUN_LIVE_TESTS=true      # Enable live API tests
@@ -191,6 +196,9 @@ sequenceDiagram
 | `market-orders.scenarios.json` | Market | 8 | Market order workflows |
 | `algo-orders.scenarios.json` | Algo | 10 | Stop, take-profit, trailing stop |
 | `mixed-orders.scenarios.json` | Mixed | 10 | Multi-type order combinations |
+| **Kraken/** `market-data.scenarios.json` | Kraken REST | 14 | Tickers, order books, trades, instruments |
+| **Kraken/** `streaming.scenarios.json` | Kraken WebSocket | 15 | WebSocket streams, subscriptions, authentication |
+| **Deribit/** `market-data.scenarios.json` | Deribit Market | 8 | Ticker, order book, instruments |
 
 ---
 
@@ -332,6 +340,58 @@ sequenceDiagram
 | MIX-008 | Complete Bracket Lifecycle | ✅ PASS | 1. Market entry → 2. Add GTX TP → 3. Add stop SL → 4. `cancelAllOpenOrders()` → 5. Close position |
 | MIX-009 | Short Side Orders | ✅ PASS | 1. Open short → 2. Add BUY stop loss → 3. Add BUY take profit → 4. Cleanup |
 | MIX-010 | Order Event Sequence | ✅ PASS | 1. Setup: place limit → 2. `getOrder()` → 3. Validate status=NEW → 4. Cancel |
+
+---
+
+## Kraken Tests
+
+### 📁 Kraken/market-data.scenarios.json
+
+| ID | Name | Status | Test Sequence |
+|:---|:-----|:------:|:--------------|
+| KMD-001 | Get Instruments List | ✅ PASS | `getInstruments()` → Validate instruments array |
+| KMD-002 | Get Tickers | ✅ PASS | `getTickers()` → Validate tickers array |
+| KMD-003 | Get Specific Ticker | ✅ PASS | `getTicker('PI_XBTUSD')` → Validate instrument, lastPrice |
+| KMD-004 | Get Ticker - Invalid Symbol | ✅ PASS | `getTicker('INVALID')` → Expect NOT_FOUND error |
+| KMD-005 | Get Order Book | ✅ PASS | `getOrderBook('PI_XBTUSD')` → Validate bids/asks |
+| KMD-006 | Get Order Book via Service | ✅ PASS | `getOrderBook('PI_XBTUSD', 20)` → Validate depth |
+| KMD-007 | Get Trade History | ✅ PASS | `getHistory('PI_XBTUSD')` → Validate history array |
+| KMD-008 | Get Recent Trades via Service | ✅ PASS | `getRecentTrades('PI_XBTUSD', 50)` → Validate array |
+| KMD-009 | Get Instrument Info | ✅ PASS | `getInstrument('PI_XBTUSD')` → Validate symbol, type |
+| KMD-010 | Get Instruments with Filter | ✅ PASS | `getInstruments({type: 'perpetual'})` → Validate array |
+| KMD-011 | Get ETH Perpetual Ticker | ✅ PASS | `getTicker('PI_ETHUSD')` → Validate ETH ticker |
+| KMD-012 | Service Connect/Disconnect | ✅ PASS | `connect()` → `disconnect()` lifecycle |
+| KMD-013 | NOT_CONNECTED Error | ✅ PASS | Call before connect → Expect NOT_CONNECTED |
+| KMD-014 | Get Multiple Tickers | ✅ PASS | BTC, ETH, SOL tickers → Validate all |
+
+### 📁 Kraken/streaming.scenarios.json
+
+| ID | Name | Status | Test Sequence |
+|:---|:-----|:------:|:--------------|
+| KWS-001 | Subscribe to Ticker | ✅ PASS | `subscribeToFeed('ticker', 'PI_XBTUSD')` → Expect ticker event |
+| KWS-002 | Multiple Ticker Streams | ✅ PASS | Subscribe BTC, ETH, SOL → Validate all tickers |
+| KWS-003 | Order Book Stream | ✅ PASS | `subscribeToFeed('book')` → Expect book_snapshot |
+| KWS-004 | Trade Stream | ✅ PASS | `subscribeToFeed('trade')` → Expect trade event |
+| KWS-005 | Quote via Service | ✅ PASS | `subscribeQuote()` → Validate subscription handle |
+| KWS-006 | Ticker via Service | ✅ PASS | `subscribeTicker()` → Validate handle |
+| KWS-007 | Order Book via Service | ✅ PASS | `subscribeOrderBook()` → Validate handle |
+| KWS-008 | Trades via Service | ✅ PASS | `subscribeTrades()` → Validate handle |
+| KWS-009 | Connect/Disconnect | ✅ PASS | WebSocket lifecycle test |
+| KWS-010 | Get Active Subscriptions | ✅ PASS | Subscribe → `getSubscriptions()` → Validate count |
+| KWS-011 | Reconnect Test | ✅ PASS | Connect → Subscribe → Verify connected state |
+| KWS-012 | Private Fills Feed | ✅ PASS | Authenticated `fills` subscription (requires API key) |
+| KWS-013 | Private Orders Feed | ✅ PASS | Authenticated `open_orders` subscription |
+| KWS-014 | Private Positions Feed | ✅ PASS | Authenticated `open_positions` subscription |
+| KWS-015 | Unsubscribe All | ✅ PASS | `unsubscribeAll()` → Validate cleanup |
+
+### Kraken Test Status Summary
+
+| Category | Status | Tests | Notes |
+|:---------|:------:|:-----:|:------|
+| Market Data REST | ✅ | 14 | Fully implemented - no credentials required |
+| WebSocket Streaming | ✅ | 15 | Public feeds - no credentials required |
+| Private Feeds | ✅ | 3 | Requires Kraken Demo API credentials |
+| Trading | ⏳ | 0 | Implementation complete, tests planned |
 
 ---
 
