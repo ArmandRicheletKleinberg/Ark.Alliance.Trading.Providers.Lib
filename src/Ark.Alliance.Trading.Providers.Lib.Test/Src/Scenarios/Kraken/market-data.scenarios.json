@@ -1,0 +1,460 @@
+{
+    "version": "1.0.0",
+    "description": "Kraken Futures Market Data REST API Test Scenarios",
+    "scenarios": [
+        {
+            "id": "KMD-001",
+            "name": "Get Instruments List",
+            "description": "Query all available tradeable instruments on Kraken Futures",
+            "category": "market-data",
+            "tags": [
+                "instruments",
+                "symbols",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenRestClient",
+            "targetMethod": "getInstruments",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "instruments": []
+                }
+            }
+        },
+        {
+            "id": "KMD-002",
+            "name": "Get Tickers",
+            "description": "Query current ticker data for all symbols",
+            "category": "market-data",
+            "tags": [
+                "ticker",
+                "price",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenRestClient",
+            "targetMethod": "getTickers",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "tickers": []
+                }
+            }
+        },
+        {
+            "id": "KMD-003",
+            "name": "Get Specific Ticker via Service",
+            "description": "Query ticker data for PI_XBTUSD perpetual using market data service",
+            "category": "market-data",
+            "tags": [
+                "ticker",
+                "snapshot",
+                "service"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "getTicker",
+            "input": {
+                "parameters": {
+                    "instrument": "PI_XBTUSD"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "instrument": "PI_XBTUSD"
+                }
+            }
+        },
+        {
+            "id": "KMD-004",
+            "name": "Get Ticker - Invalid Symbol",
+            "description": "Attempt to fetch ticker for non-existent instrument",
+            "category": "error-handling",
+            "tags": [
+                "ticker",
+                "error",
+                "validation"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "getTicker",
+            "input": {
+                "parameters": {
+                    "instrument": "INVALID_SYMBOL_XYZ"
+                }
+            },
+            "expected": {
+                "success": false,
+                "error": {
+                    "code": "NOT_FOUND"
+                }
+            }
+        },
+        {
+            "id": "KMD-005",
+            "name": "Get Order Book",
+            "description": "Query order book depth for PI_XBTUSD",
+            "category": "market-data",
+            "tags": [
+                "orderbook",
+                "depth",
+                "liquidity"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenRestClient",
+            "targetMethod": "getOrderBook",
+            "input": {
+                "parameters": {
+                    "symbol": "PI_XBTUSD"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "orderBook": {}
+                }
+            }
+        },
+        {
+            "id": "KMD-006",
+            "name": "Get Order Book via Service",
+            "description": "Query order book with depth limit using market data service",
+            "category": "market-data",
+            "tags": [
+                "orderbook",
+                "snapshot",
+                "service"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "getOrderBook",
+            "input": {
+                "parameters": {
+                    "instrument": "PI_XBTUSD",
+                    "depth": 20
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "instrument": "PI_XBTUSD"
+                }
+            }
+        },
+        {
+            "id": "KMD-007",
+            "name": "Get Trade History",
+            "description": "Query recent public trade history for PI_XBTUSD",
+            "category": "market-data",
+            "tags": [
+                "trades",
+                "history",
+                "public"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenRestClient",
+            "targetMethod": "getHistory",
+            "input": {
+                "parameters": {
+                    "symbol": "PI_XBTUSD"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "history": []
+                }
+            }
+        },
+        {
+            "id": "KMD-008",
+            "name": "Get Recent Trades via Service",
+            "description": "Query recent trades with limit using market data service",
+            "category": "market-data",
+            "tags": [
+                "trades",
+                "recent",
+                "service"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "getRecentTrades",
+            "input": {
+                "parameters": {
+                    "instrument": "PI_XBTUSD",
+                    "limit": 50
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultIsArray": true
+            }
+        },
+        {
+            "id": "KMD-009",
+            "name": "Get Instrument Info",
+            "description": "Fetch detailed instrument information for PI_XBTUSD",
+            "category": "market-data",
+            "tags": [
+                "instrument",
+                "details",
+                "symbol"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "getInstrument",
+            "input": {
+                "parameters": {
+                    "symbol": "PI_XBTUSD"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "symbol": "PI_XBTUSD"
+                }
+            }
+        },
+        {
+            "id": "KMD-010",
+            "name": "Get Instruments with Filter",
+            "description": "Query perpetual instruments filtered by type",
+            "category": "market-data",
+            "tags": [
+                "instruments",
+                "filter",
+                "perpetual"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "getInstruments",
+            "input": {
+                "parameters": {
+                    "filter": {
+                        "type": "perpetual"
+                    }
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultIsArray": true
+            }
+        },
+        {
+            "id": "KMD-011",
+            "name": "Get ETH Perpetual Ticker",
+            "description": "Query ticker for PI_ETHUSD perpetual",
+            "category": "market-data",
+            "tags": [
+                "ticker",
+                "eth",
+                "price"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "getTicker",
+            "input": {
+                "parameters": {
+                    "instrument": "PI_ETHUSD"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "instrument": "PI_ETHUSD"
+                }
+            }
+        },
+        {
+            "id": "KMD-012",
+            "name": "Service Connect and Disconnect",
+            "description": "Test market data service connection lifecycle",
+            "category": "lifecycle",
+            "tags": [
+                "connection",
+                "lifecycle",
+                "basic"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "connect",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true
+            },
+            "cleanup": {
+                "method": "disconnect",
+                "parameters": {}
+            }
+        },
+        {
+            "id": "KMD-013",
+            "name": "Not Connected Error Handling",
+            "description": "Calling methods without connecting should fail",
+            "category": "error-handling",
+            "tags": [
+                "error",
+                "connection",
+                "validation"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": false,
+                "skipConnect": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "getTicker",
+            "input": {
+                "parameters": {
+                    "instrument": "PI_XBTUSD"
+                }
+            },
+            "expected": {
+                "success": false,
+                "error": {
+                    "code": "NOT_CONNECTED"
+                }
+            }
+        },
+        {
+            "id": "KMD-014",
+            "name": "Get Multiple Symbol Tickers",
+            "description": "Query and verify tickers for BTC, ETH, and SOL perpetuals",
+            "category": "market-data",
+            "tags": [
+                "ticker",
+                "multi",
+                "batch"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "setup": [
+                {
+                    "id": "get-btc-ticker",
+                    "description": "Get BTC ticker",
+                    "targetClass": "KrakenMarketDataService",
+                    "targetMethod": "getTicker",
+                    "parameters": {
+                        "instrument": "PI_XBTUSD"
+                    },
+                    "required": true,
+                    "storeResultAs": "btcTicker"
+                },
+                {
+                    "id": "get-eth-ticker",
+                    "description": "Get ETH ticker",
+                    "targetClass": "KrakenMarketDataService",
+                    "targetMethod": "getTicker",
+                    "parameters": {
+                        "instrument": "PI_ETHUSD"
+                    },
+                    "required": true,
+                    "storeResultAs": "ethTicker"
+                }
+            ],
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "getTicker",
+            "input": {
+                "parameters": {
+                    "instrument": "PI_SOLUSD"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "instrument": "PI_SOLUSD"
+                }
+            }
+        }
+    ]
+}
