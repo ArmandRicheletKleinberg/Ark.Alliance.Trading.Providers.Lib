@@ -1,7 +1,7 @@
 # Project Roadmap & Task Tracking
 
 **Project**: Ark Alliance Trading Providers Library  
-**Last Updated**: 2025-12-30  
+**Last Updated**: 2026-01-06  
 **Current Version**: 1.0.0  
 **Target Version**: 2.0.0 (March 2026)
 
@@ -13,9 +13,10 @@
 |:----------|:------:|:--------:|:---------:|:---------------|
 | **Binance Provider** | ✅ Complete | 100% | Q4 2025 | Maintenance Only |
 | **Deribit Provider** | 🚧 In Progress | 60% | Market Data (Q4 2025) | Full Testing (Week 4, Jan 2026) |
-| **OKX Provider** | 📋 Planned | 0% | - | Research Start (Week 5, Jan 2026) |
-| **Bybit Provider** | 📋 Planned | 0% | - | Implementation (Feb 2026) |
-| **Library v2.0.0** | 🎯 Target | 25% | - | **March 31, 2026** |
+| **Kraken Provider** | ✅ Complete | 100% | Q1 2026 | Maintenance Only |
+| **OKX Provider** | 📋 Planned | 0% | - | Research Start (Feb 2026) |
+| **Bybit Provider** | 📋 Planned | 0% | - | Implementation (Mar 2026) |
+| **Library v2.0.0** | 🎯 Target | 35% | - | **March 31, 2026** |
 
 ---
 
@@ -58,6 +59,20 @@
 - ✅ Build scripts (PowerShell + Bash)
 - ✅ Deployment documentation
 - ✅ NPM package configuration
+
+### ✅ Kraken Futures Provider - Complete (January 2026)
+
+**Completed**: January 2026
+
+- ✅ REST API client (all market data endpoints)
+- ✅ WebSocket client with challenge-response authentication
+- ✅ Trading services (ITradingService implementation)
+- ✅ Market data services (IMarketDataService implementation)
+- ✅ Order and position mappers to common domain interfaces
+- ✅ Comprehensive DTOs for trading, account, market data, WebSocket
+- ✅ 29 test scenarios (14 REST + 15 WebSocket), 100% pass rate
+- ✅ HMAC-SHA256 signature generation
+- ✅ Challenge-response WebSocket authentication
 
 ---
 
@@ -439,6 +454,7 @@
 
 - [x] Binance Futures provider (100%)
 - [x] Deribit market data (100%)
+- [x] Kraken Futures provider (100%)
 - [x] Project infrastructure (100%)
 - [x] CI/CD pipelines (100%)
 - [x] Documentation framework (100%)
@@ -459,8 +475,8 @@
 ### Q2 2026 (April-June)
 
 - Complete Bybit to 100%
-- Add Kraken Futures
 - Start BitMEX integration
+- Performance optimizations
 
 ### Q3 2026 (July-September)
 
@@ -516,6 +532,6 @@
 
 ---
 
-*This roadmap will be updated weekly during Q1 2026. Last updated: 2025-12-30*
+*This roadmap will be updated weekly during Q1 2026. Last updated: 2026-01-06*
 
 **Target**: 🎯 **v2.0.0 Release - March 31, 2026**

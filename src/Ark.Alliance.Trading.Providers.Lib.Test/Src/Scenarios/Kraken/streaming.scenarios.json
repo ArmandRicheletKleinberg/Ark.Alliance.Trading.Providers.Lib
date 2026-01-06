@@ -1,0 +1,728 @@
+{
+    "version": "1.0.0",
+    "description": "Kraken Futures WebSocket Streaming Test Scenarios",
+    "scenarios": [
+        {
+            "id": "KWS-001",
+            "name": "Subscribe to Ticker Stream",
+            "description": "Connect to WebSocket and subscribe to PI_XBTUSD ticker stream",
+            "category": "streaming",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "ticker",
+                "single"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "wsUrl": "wss://demo-futures.kraken.com/ws/v1"
+            },
+            "targetClass": "KrakenWebSocketClient",
+            "targetMethod": "subscribeToFeed",
+            "input": {
+                "parameters": {
+                    "feed": "ticker",
+                    "productIds": [
+                        "PI_XBTUSD"
+                    ]
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "ticker",
+                        "data": {
+                            "product_id": "PI_XBTUSD"
+                        },
+                        "required": true,
+                        "timeoutMs": 5000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "unsubscribe",
+                    "description": "Unsubscribe from ticker stream",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "unsubscribeFromFeed",
+                    "parameters": {
+                        "feed": "ticker",
+                        "productIds": [
+                            "PI_XBTUSD"
+                        ]
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "KWS-002",
+            "name": "Subscribe to Multiple Ticker Streams",
+            "description": "Subscribe to BTC, ETH, SOL perpetual ticker streams simultaneously",
+            "category": "streaming",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "ticker",
+                "multi"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "wsUrl": "wss://demo-futures.kraken.com/ws/v1"
+            },
+            "targetClass": "KrakenWebSocketClient",
+            "targetMethod": "subscribeToFeed",
+            "input": {
+                "parameters": {
+                    "feed": "ticker",
+                    "productIds": [
+                        "PI_XBTUSD",
+                        "PI_ETHUSD",
+                        "PI_SOLUSD"
+                    ]
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "ticker",
+                        "data": {
+                            "product_id": "PI_XBTUSD"
+                        },
+                        "required": true,
+                        "timeoutMs": 10000
+                    },
+                    {
+                        "eventName": "ticker",
+                        "data": {
+                            "product_id": "PI_ETHUSD"
+                        },
+                        "required": true,
+                        "timeoutMs": 10000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "unsubscribe-all",
+                    "description": "Unsubscribe from all ticker streams",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "disconnect",
+                    "parameters": {},
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "KWS-003",
+            "name": "Subscribe to Order Book Stream",
+            "description": "Subscribe to order book depth stream for PI_XBTUSD",
+            "category": "streaming",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "book",
+                "orderbook"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "wsUrl": "wss://demo-futures.kraken.com/ws/v1"
+            },
+            "targetClass": "KrakenWebSocketClient",
+            "targetMethod": "subscribeToFeed",
+            "input": {
+                "parameters": {
+                    "feed": "book",
+                    "productIds": [
+                        "PI_XBTUSD"
+                    ]
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "book_snapshot",
+                        "data": {
+                            "product_id": "PI_XBTUSD"
+                        },
+                        "required": true,
+                        "timeoutMs": 5000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "unsubscribe",
+                    "description": "Unsubscribe from book stream",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "unsubscribeFromFeed",
+                    "parameters": {
+                        "feed": "book",
+                        "productIds": [
+                            "PI_XBTUSD"
+                        ]
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "KWS-004",
+            "name": "Subscribe to Trade Stream",
+            "description": "Subscribe to public trade stream for PI_XBTUSD",
+            "category": "streaming",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "trade",
+                "public"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "wsUrl": "wss://demo-futures.kraken.com/ws/v1"
+            },
+            "targetClass": "KrakenWebSocketClient",
+            "targetMethod": "subscribeToFeed",
+            "input": {
+                "parameters": {
+                    "feed": "trade",
+                    "productIds": [
+                        "PI_XBTUSD"
+                    ]
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "trade",
+                        "data": {
+                            "product_id": "PI_XBTUSD"
+                        },
+                        "required": true,
+                        "timeoutMs": 30000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "unsubscribe",
+                    "description": "Unsubscribe from trade stream",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "unsubscribeFromFeed",
+                    "parameters": {
+                        "feed": "trade",
+                        "productIds": [
+                            "PI_XBTUSD"
+                        ]
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "KWS-005",
+            "name": "Subscribe to Quote via Service",
+            "description": "Subscribe to quote updates using market data service",
+            "category": "streaming",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "quote",
+                "service"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "subscribeQuote",
+            "input": {
+                "parameters": {
+                    "instrument": "PI_XBTUSD"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "id": "ticker:PI_XBTUSD_*"
+                }
+            }
+        },
+        {
+            "id": "KWS-006",
+            "name": "Subscribe to Ticker via Service",
+            "description": "Subscribe to ticker updates using market data service",
+            "category": "streaming",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "ticker",
+                "service"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "subscribeTicker",
+            "input": {
+                "parameters": {
+                    "instrument": "PI_XBTUSD"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "id": "ticker:PI_XBTUSD_*"
+                }
+            }
+        },
+        {
+            "id": "KWS-007",
+            "name": "Subscribe to Order Book via Service",
+            "description": "Subscribe to order book updates using market data service",
+            "category": "streaming",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "orderbook",
+                "service"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "subscribeOrderBook",
+            "input": {
+                "parameters": {
+                    "instrument": "PI_XBTUSD"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "id": "orderbook:PI_XBTUSD_*"
+                }
+            }
+        },
+        {
+            "id": "KWS-008",
+            "name": "Subscribe to Trades via Service",
+            "description": "Subscribe to trade updates using market data service",
+            "category": "streaming",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "trades",
+                "service"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "subscribeTrades",
+            "input": {
+                "parameters": {
+                    "instrument": "PI_XBTUSD"
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "id": "trades:PI_XBTUSD_*"
+                }
+            }
+        },
+        {
+            "id": "KWS-009",
+            "name": "WebSocket Connect and Disconnect",
+            "description": "Test WebSocket connection lifecycle",
+            "category": "lifecycle",
+            "tags": [
+                "websocket",
+                "connect",
+                "disconnect",
+                "lifecycle"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "wsUrl": "wss://demo-futures.kraken.com/ws/v1"
+            },
+            "targetClass": "KrakenWebSocketClient",
+            "targetMethod": "connect",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "connected",
+                        "required": true,
+                        "timeoutMs": 5000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "disconnect",
+                    "description": "Disconnect WebSocket",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "disconnect",
+                    "parameters": {},
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "KWS-010",
+            "name": "Get Active Subscriptions",
+            "description": "Verify subscription tracking after subscribing to feeds",
+            "category": "management",
+            "tags": [
+                "websocket",
+                "subscriptions",
+                "tracking"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "wsUrl": "wss://demo-futures.kraken.com/ws/v1"
+            },
+            "setup": [
+                {
+                    "id": "connect",
+                    "description": "Connect WebSocket",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "connect",
+                    "parameters": {},
+                    "required": true
+                },
+                {
+                    "id": "subscribe-ticker",
+                    "description": "Subscribe to ticker",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "subscribeToFeed",
+                    "parameters": {
+                        "feed": "ticker",
+                        "productIds": [
+                            "PI_XBTUSD"
+                        ]
+                    },
+                    "required": true
+                }
+            ],
+            "targetClass": "KrakenWebSocketClient",
+            "targetMethod": "getSubscriptions",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultIsArray": true,
+                "resultData": {
+                    "length": 1
+                }
+            },
+            "cleanup": [
+                {
+                    "id": "disconnect",
+                    "description": "Disconnect WebSocket",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "disconnect",
+                    "parameters": {},
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "KWS-011",
+            "name": "Reconnect After Disconnect",
+            "description": "Test WebSocket automatic reconnection capability",
+            "category": "resilience",
+            "tags": [
+                "websocket",
+                "reconnect",
+                "resilience"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "wsUrl": "wss://demo-futures.kraken.com/ws/v1"
+            },
+            "setup": [
+                {
+                    "id": "initial-connect",
+                    "description": "Initial connection",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "connect",
+                    "parameters": {},
+                    "required": true
+                },
+                {
+                    "id": "subscribe-ticker",
+                    "description": "Subscribe to ticker",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "subscribeToFeed",
+                    "parameters": {
+                        "feed": "ticker",
+                        "productIds": [
+                            "PI_XBTUSD"
+                        ]
+                    },
+                    "required": true
+                }
+            ],
+            "targetClass": "KrakenWebSocketClient",
+            "targetMethod": "isConnected",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true,
+                "resultData": true
+            },
+            "cleanup": [
+                {
+                    "id": "disconnect",
+                    "description": "Disconnect WebSocket",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "disconnect",
+                    "parameters": {},
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "KWS-012",
+            "name": "Private Fills Feed - Authenticated",
+            "description": "Subscribe to private fills feed (requires API authentication)",
+            "category": "private",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "fills",
+                "authenticated"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "kraken-testnet",
+                "wsUrl": "wss://demo-futures.kraken.com/ws/v1"
+            },
+            "targetClass": "KrakenWebSocketClient",
+            "targetMethod": "subscribeToFeed",
+            "input": {
+                "parameters": {
+                    "feed": "fills"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "subscribed",
+                        "data": {
+                            "feed": "fills"
+                        },
+                        "required": true,
+                        "timeoutMs": 10000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "unsubscribe",
+                    "description": "Unsubscribe from fills",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "unsubscribeFromFeed",
+                    "parameters": {
+                        "feed": "fills"
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "KWS-013",
+            "name": "Private Open Orders Feed - Authenticated",
+            "description": "Subscribe to open orders updates (requires API authentication)",
+            "category": "private",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "orders",
+                "authenticated"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "kraken-testnet",
+                "wsUrl": "wss://demo-futures.kraken.com/ws/v1"
+            },
+            "targetClass": "KrakenWebSocketClient",
+            "targetMethod": "subscribeToFeed",
+            "input": {
+                "parameters": {
+                    "feed": "open_orders"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "subscribed",
+                        "data": {
+                            "feed": "open_orders"
+                        },
+                        "required": true,
+                        "timeoutMs": 10000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "unsubscribe",
+                    "description": "Unsubscribe from open_orders",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "unsubscribeFromFeed",
+                    "parameters": {
+                        "feed": "open_orders"
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "KWS-014",
+            "name": "Private Open Positions Feed - Authenticated",
+            "description": "Subscribe to open positions updates (requires API authentication)",
+            "category": "private",
+            "tags": [
+                "websocket",
+                "subscribe",
+                "positions",
+                "authenticated"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": true,
+                "credentialRef": "kraken-testnet",
+                "wsUrl": "wss://demo-futures.kraken.com/ws/v1"
+            },
+            "targetClass": "KrakenWebSocketClient",
+            "targetMethod": "subscribeToFeed",
+            "input": {
+                "parameters": {
+                    "feed": "open_positions"
+                }
+            },
+            "expected": {
+                "success": true,
+                "events": [
+                    {
+                        "eventName": "subscribed",
+                        "data": {
+                            "feed": "open_positions"
+                        },
+                        "required": true,
+                        "timeoutMs": 10000
+                    }
+                ]
+            },
+            "cleanup": [
+                {
+                    "id": "unsubscribe",
+                    "description": "Unsubscribe from open_positions",
+                    "targetClass": "KrakenWebSocketClient",
+                    "targetMethod": "unsubscribeFromFeed",
+                    "parameters": {
+                        "feed": "open_positions"
+                    },
+                    "continueOnError": true
+                }
+            ]
+        },
+        {
+            "id": "KWS-015",
+            "name": "Unsubscribe All Subscriptions",
+            "description": "Test cleanup of all active subscriptions",
+            "category": "management",
+            "tags": [
+                "websocket",
+                "unsubscribe",
+                "cleanup"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "kraken",
+                "network": "TESTNET",
+                "requiresAuth": false,
+                "requiresLiveConnection": true
+            },
+            "setup": [
+                {
+                    "id": "subscribe-feeds",
+                    "description": "Subscribe to multiple feeds",
+                    "targetClass": "KrakenMarketDataService",
+                    "targetMethod": "subscribeTicker",
+                    "parameters": {
+                        "instrument": "PI_XBTUSD"
+                    },
+                    "required": true
+                }
+            ],
+            "targetClass": "KrakenMarketDataService",
+            "targetMethod": "unsubscribeAll",
+            "input": {
+                "parameters": {}
+            },
+            "expected": {
+                "success": true
+            }
+        }
+    ]
+}

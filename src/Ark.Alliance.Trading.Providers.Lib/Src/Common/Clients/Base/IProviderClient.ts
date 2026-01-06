@@ -14,7 +14,8 @@ import { Result } from '../../result';
  */
 export enum ProviderType {
     BINANCE = 'BINANCE',
-    DERIBIT = 'DERIBIT'
+    DERIBIT = 'DERIBIT',
+    KRAKEN = 'KRAKEN'
 }
 
 /**

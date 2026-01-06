@@ -30,6 +30,9 @@
             "ark-alliance-trading-providers-lib/Deribit": [
                 "../Ark.Alliance.Trading.Providers.Lib/Src/Deribit/index.ts"
             ],
+            "ark-alliance-trading-providers-lib/Kraken": [
+                "../Ark.Alliance.Trading.Providers.Lib/Src/Kraken/index.ts"
+            ],
             "ark-alliance-trading-providers-lib/Common/services": [
                 "../Ark.Alliance.Trading.Providers.Lib/Src/Common/services/index.ts"
             ],
