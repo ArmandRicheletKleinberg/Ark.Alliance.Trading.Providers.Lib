@@ -16,3 +16,9 @@ export {
     BinanceMarketDataService,
     BinanceMarketDataServiceConfig
 } from './BinanceMarketDataService';
+
+// Account Service
+export {
+    BinanceAccountService,
+    BinanceAccountServiceConfig
+} from './BinanceAccountService';

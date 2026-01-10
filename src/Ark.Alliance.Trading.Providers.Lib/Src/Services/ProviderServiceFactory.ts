@@ -8,8 +8,10 @@
 import { ProviderType, ProviderEnvironment } from '../Common/Clients/Base';
 import { ITradingService } from './ITradingService';
 import { IMarketDataService } from './IMarketDataService';
+import { IAccountService } from './IAccountService';
 import { BinanceTradingService } from '../Binance/services/BinanceTradingService';
 import { BinanceMarketDataService } from '../Binance/services/BinanceMarketDataService';
+import { BinanceAccountService } from '../Binance/services/BinanceAccountService';
 import { DeribitTradingService } from '../Deribit/services/DeribitTradingService';
 import { DeribitMarketDataService } from '../Deribit/services/DeribitMarketDataService';
 import { DeribitEnvironment } from '../Deribit/enums';
@@ -212,6 +214,42 @@ export class MarketDataServiceFactory {
                         : DeribitEnvironment.MAINNET,
                     debug: deribitConfig.options?.debug
                 });
+            }
+
+            default:
+                throw new Error(`Unknown provider: ${(config as ProviderConfig).provider}`);
+        }
+    }
+}
+
+/**
+ * Factory for creating account services.
+ */
+export class AccountServiceFactory {
+    /**
+     * Create an account service for the specified provider.
+     *
+     * @param config - Provider configuration.
+     * @returns Provider-specific account service implementation.
+     * @throws Error if provider is not supported.
+     */
+    static create(config: ProviderConfigUnion): IAccountService {
+        switch (config.provider) {
+            case ProviderType.BINANCE: {
+                const binanceConfig = config as BinanceConfig;
+                return new BinanceAccountService({
+                    apiKey: binanceConfig.credentials.apiKey,
+                    apiSecret: binanceConfig.credentials.apiSecret,
+                    environment: binanceConfig.environment.isTestnet
+                        ? BinanceEnvironment.TESTNET
+                        : BinanceEnvironment.MAINNET,
+                    debug: binanceConfig.options?.debug
+                });
+            }
+
+            case ProviderType.DERIBIT: {
+                // TODO: Implement DeribitAccountService
+                throw new Error('Deribit account service not yet implemented');
             }
 
             default:
