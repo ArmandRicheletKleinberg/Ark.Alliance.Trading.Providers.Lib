@@ -1,0 +1,253 @@
+{
+    "version": "1.0.0",
+    "description": "BinanceAccountService Test Scenarios - IAccountService implementation",
+    "scenarios": [
+        {
+            "id": "ACCSVC-001",
+            "name": "Get Account via Service",
+            "description": "Test getAccount method returns properly mapped IAccount",
+            "category": "account-service",
+            "tags": [
+                "account",
+                "service",
+                "mapping"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceAccountService",
+            "targetMethod": "getAccount",
+            "mockData": {
+                "restClientResponse": {
+                    "totalWalletBalance": "10000.50",
+                    "availableBalance": "8500.25",
+                    "totalInitialMargin": "1500.25",
+                    "totalUnrealizedProfit": "250.75",
+                    "totalMaintMargin": "750.10",
+                    "assets": [
+                        {
+                            "asset": "USDT",
+                            "walletBalance": "10000.50",
+                            "availableBalance": "8500.25",
+                            "marginBalance": "9750.50",
+                            "unrealizedProfit": "250.75"
+                        }
+                    ]
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultData": {
+                    "provider": "BINANCE",
+                    "currency": "USDT",
+                    "totalBalance": "10000.50",
+                    "availableBalance": "8500.25",
+                    "marginUsed": "1500.25",
+                    "unrealizedPnl": "250.75"
+                }
+            }
+        },
+        {
+            "id": "ACCSVC-002",
+            "name": "Get Balances via Service",
+            "description": "Test getBalances returns properly mapped IAccountBalance array",
+            "category": "account-service",
+            "tags": [
+                "balance",
+                "service",
+                "mapping"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceAccountService",
+            "targetMethod": "getBalances",
+            "mockData": {
+                "restClientResponse": {
+                    "assets": [
+                        {
+                            "asset": "USDT",
+                            "walletBalance": "5000.00",
+                            "availableBalance": "4000.00",
+                            "crossWalletBalance": "5000.00",
+                            "unrealizedProfit": "150.00",
+                            "marginBalance": "4850.00"
+                        },
+                        {
+                            "asset": "BTC",
+                            "walletBalance": "0.5",
+                            "availableBalance": "0.4",
+                            "crossWalletBalance": "0.5",
+                            "unrealizedProfit": "0.02",
+                            "marginBalance": "0.48"
+                        }
+                    ]
+                }
+            },
+            "expected": {
+                "success": true,
+                "resultType": "array",
+                "resultLength": 2
+            }
+        },
+        {
+            "id": "ACCSVC-003",
+            "name": "Set Leverage via Service",
+            "description": "Test setLeverage calls REST client correctly",
+            "category": "account-service",
+            "tags": [
+                "leverage",
+                "service",
+                "configuration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceAccountService",
+            "targetMethod": "setLeverage",
+            "input": {
+                "parameters": {
+                    "instrument": "BTCUSDT",
+                    "leverage": 20
+                }
+            },
+            "mockData": {
+                "restClientResponse": {
+                    "leverage": 20,
+                    "maxNotionalValue": "100000",
+                    "symbol": "BTCUSDT"
+                }
+            },
+            "expected": {
+                "success": true
+            }
+        },
+        {
+            "id": "ACCSVC-004",
+            "name": "Set Margin Type via Service",
+            "description": "Test setMarginType calls REST client correctly",
+            "category": "account-service",
+            "tags": [
+                "margin",
+                "service",
+                "configuration"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceAccountService",
+            "targetMethod": "setMarginType",
+            "input": {
+                "parameters": {
+                    "instrument": "BTCUSDT",
+                    "marginType": "ISOLATED"
+                }
+            },
+            "mockData": {
+                "restClientResponse": {}
+            },
+            "expected": {
+                "success": true
+            }
+        },
+        {
+            "id": "ACCSVC-005",
+            "name": "Get Leverage via Service",
+            "description": "Test getLeverage retrieves leverage from position risk",
+            "category": "account-service",
+            "tags": [
+                "leverage",
+                "service",
+                "query"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceAccountService",
+            "targetMethod": "getLeverage",
+            "input": {
+                "parameters": {
+                    "instrument": "BTCUSDT"
+                }
+            },
+            "mockData": {
+                "restClientResponse": [
+                    {
+                        "symbol": "BTCUSDT",
+                        "leverage": "20",
+                        "marginType": "isolated"
+                    }
+                ]
+            },
+            "expected": {
+                "success": true,
+                "resultData": 20
+            }
+        },
+        {
+            "id": "ACCSVC-006",
+            "name": "Cache Hit - Get Account",
+            "description": "Test that getAccount returns cached data on second call",
+            "category": "account-service",
+            "tags": [
+                "cache",
+                "service",
+                "performance"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET",
+                "requiresAuth": true
+            },
+            "targetClass": "BinanceAccountService",
+            "targetMethod": "getAccount",
+            "testStrategy": "cache-validation",
+            "expected": {
+                "success": true,
+                "cacheHit": true
+            }
+        },
+        {
+            "id": "ACCSVC-007",
+            "name": "Service Not Connected Error",
+            "description": "Test that methods return error when service is not connected",
+            "category": "account-service",
+            "tags": [
+                "error",
+                "service",
+                "lifecycle"
+            ],
+            "enabled": true,
+            "environment": {
+                "provider": "binance",
+                "network": "TESTNET"
+            },
+            "targetClass": "BinanceAccountService",
+            "targetMethod": "getAccount",
+            "testStrategy": "error-handling",
+            "precondition": {
+                "connected": false
+            },
+            "expected": {
+                "success": false,
+                "errorCode": "SERVICE_NOT_RUNNING"
+            }
+        }
+    ]
+}

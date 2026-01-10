@@ -24,6 +24,13 @@ export {
     IMarketDataService
 } from './IMarketDataService';
 
+// Account Service
+export {
+    SetLeverageParams,
+    SetMarginTypeParams,
+    IAccountService
+} from './IAccountService';
+
 // Factories
 export {
     ProviderConfig,
@@ -31,7 +38,8 @@ export {
     DeribitConfig,
     ProviderConfigUnion,
     TradingServiceFactory,
-    MarketDataServiceFactory
+    MarketDataServiceFactory,
+    AccountServiceFactory
 } from './ProviderServiceFactory';
 
 // Re-export BaseService and related types from Common/services
