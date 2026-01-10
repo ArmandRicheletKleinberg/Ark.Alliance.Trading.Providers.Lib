@@ -5,6 +5,12 @@
  * Centralized exports for Deribit provider services.
  */
 
+// Account Service
+export {
+    DeribitAccountService,
+    DeribitAccountServiceConfig
+} from './DeribitAccountService';
+
 // Trading Service
 export {
     DeribitTradingService,

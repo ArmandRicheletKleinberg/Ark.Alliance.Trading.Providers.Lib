@@ -14,6 +14,7 @@ import { BinanceMarketDataService } from '../Binance/services/BinanceMarketDataS
 import { BinanceAccountService } from '../Binance/services/BinanceAccountService';
 import { DeribitTradingService } from '../Deribit/services/DeribitTradingService';
 import { DeribitMarketDataService } from '../Deribit/services/DeribitMarketDataService';
+import { DeribitAccountService } from '../Deribit/services/DeribitAccountService';
 import { DeribitEnvironment } from '../Deribit/enums';
 import { BinanceEnvironment } from '../Binance/enums';
 
@@ -248,8 +249,16 @@ export class AccountServiceFactory {
             }
 
             case ProviderType.DERIBIT: {
-                // TODO: Implement DeribitAccountService
-                throw new Error('Deribit account service not yet implemented');
+                const deribitConfig = config as DeribitConfig;
+                return new DeribitAccountService({
+                    clientId: deribitConfig.credentials.apiKey,
+                    clientSecret: deribitConfig.credentials.apiSecret,
+                    environment: deribitConfig.environment.isTestnet
+                        ? DeribitEnvironment.TESTNET
+                        : DeribitEnvironment.MAINNET,
+                    debug: deribitConfig.options?.debug,
+                    scopes: deribitConfig.deribitOptions?.scopes
+                });
             }
 
             default:
